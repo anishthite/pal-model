@@ -1,0 +1,49 @@
+12/18/2019 00:46:16 - INFO - __main__ -   train batch size = 512, new train batch size (after gradient accumulation) = 64
+12/18/2019 00:46:16 - INFO - __main__ -   CUDA available? False
+12/18/2019 00:46:16 - INFO - __main__ -   Input Argument Information
+12/18/2019 00:46:16 - INFO - __main__ -   model_name_or_path            /home/anishthite/Workspace/transfer/models/small
+12/18/2019 00:46:16 - INFO - __main__ -   seed                          42
+12/18/2019 00:46:16 - INFO - __main__ -   max_seq_length                128
+12/18/2019 00:46:16 - INFO - __main__ -   skip_eval                     False
+12/18/2019 00:46:16 - INFO - __main__ -   init_checkpoint               /home/anishthite/Workspace/transfer/models/small/pytorch_model.bin
+12/18/2019 00:46:16 - INFO - __main__ -   train_input_file              /home/anishthite/Workspace/transfer/data/train.128len.db
+12/18/2019 00:46:16 - INFO - __main__ -   eval_input_file               ./data/dummy_data.tsv
+12/18/2019 00:46:16 - INFO - __main__ -   continue_from                 0
+12/18/2019 00:46:16 - INFO - __main__ -   train_batch_size              64
+12/18/2019 00:46:16 - INFO - __main__ -   gradient_accumulation_steps   8
+12/18/2019 00:46:16 - INFO - __main__ -   eval_batch_size               64
+12/18/2019 00:46:16 - INFO - __main__ -   learning_rate                 1e-05
+12/18/2019 00:46:16 - INFO - __main__ -   num_optim_steps               10000
+12/18/2019 00:46:16 - INFO - __main__ -   valid_step                    5000
+12/18/2019 00:46:16 - INFO - __main__ -   warmup_proportion             0.1
+12/18/2019 00:46:16 - INFO - __main__ -   warmup_steps                  4000
+12/18/2019 00:46:16 - INFO - __main__ -   normalize_data                True
+12/18/2019 00:46:16 - INFO - __main__ -   fp16                          True
+12/18/2019 00:46:16 - INFO - __main__ -   lr_schedule                   noam
+12/18/2019 00:46:16 - INFO - __main__ -   loss_scale                    0.0
+12/18/2019 00:46:16 - INFO - __main__ -   no_token_id                   True
+12/18/2019 00:46:16 - INFO - __main__ -   output_dir                    /home/anishthite/Workspace/transfer/models/output_model
+12/18/2019 00:46:16 - INFO - __main__ -   log_dir                       None
+12/18/2019 00:46:16 - INFO - __main__ -   pbar                          True
+12/18/2019 00:46:16 - INFO - __main__ -   local_rank                    -1
+12/18/2019 00:46:16 - INFO - __main__ -   config                        None
+12/18/2019 00:46:16 - INFO - __main__ -   device                        cpu
+12/18/2019 00:46:16 - INFO - __main__ -   n_gpu                         0
+12/18/2019 00:46:16 - INFO - pytorch_pretrained_bert.tokenization_gpt2 -   loading vocabulary file /home/anishthite/Workspace/transfer/models/small/vocab.json
+12/18/2019 00:46:16 - INFO - pytorch_pretrained_bert.tokenization_gpt2 -   loading merges file /home/anishthite/Workspace/transfer/models/small/merges.txt
+12/18/2019 00:46:28 - INFO - gpt2_training.train_utils -   loading finetuned model from /home/anishthite/Workspace/transfer/models/small/pytorch_model.bin
+12/18/2019 00:46:29 - INFO - gpt2_training.train_utils -   loading transfomer only
+12/18/2019 00:46:29 - INFO - gpt2_training.train_utils -   in fp16, model.half() activated
+12/18/2019 00:46:29 - INFO - __main__ -   Number of parameter = 124439808
+12/18/2019 00:46:29 - INFO - __main__ -   in fp16, using FusedAdam
+Traceback (most recent call last):
+  File "LSP_train.py", line 219, in <module>
+    from apex.optimizers import FP16_Optimizer
+ModuleNotFoundError: No module named 'apex'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "LSP_train.py", line 223, in <module>
+    "Please install apex from https://www.github.com/nvidia/apex "
+ImportError: Please install apex from https://www.github.com/nvidia/apex to use distributed and fp16 training.
