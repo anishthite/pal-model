@@ -115,7 +115,7 @@ args = [
     '--eval_batch_size', '64',
     '--learning_rate', '1e-5',
     '--num_optim_steps', '10000',
-    '--valid_step', h'5000',
+    '--valid_step', '5000',
     '--warmup_steps', '4000',
     '--normalize_data', 'true',
     '--fp16', 'false',
