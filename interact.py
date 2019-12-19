@@ -16,7 +16,7 @@ from demo_utils import download_model_folder
 import argparse
 import subprocess as sp
 
-from pytorch_pretrained_bert import GPT2LMHeadModel, GPT2Tokenizer, GPT2Config
+from transformers import GPT2LMHeadModel, GPT2Tokenizer, GPT2Config
 from gpt2_training.train_utils import get_eval_list_same_length, load_model, boolean_string, fix_state_dict_namespace
 
 logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
@@ -80,11 +80,14 @@ def top_filtering(logits, top_k=0, top_p=0.0, threshold=-float('Inf'), filter_va
 
 def generate_next_token(model, input_ids, position_ids=None, token_type_ids=None, prev=None, temperature=1, top_k=0, top_p=0, past=None):
     with torch.no_grad():
-        if not past:
-            hidden_states, past = model.transformer(prev, position_ids, token_type_ids, past=past)
-        else:
-            hidden_states, past = model.transformer(prev, past=past)
-        logits = model.lm_head(hidden_states)
+        # if not past:
+        #     hidden_states, past = model.transformer(prev, position_ids, token_type_ids, past=past)
+        # else:
+        #     hidden_states, past = model.transformer(prev, past=past)
+        # logits = model.lm_head(hidden_states)
+        logits = model(input_ids)
+        if isinstance(logits, tuple):
+            logits = logits[0]
         logits = logits[0, -1, :] / temperature
         logits = top_filtering(logits, top_k=top_k, top_p=top_p)
         probs = F.softmax(logits.unsqueeze(0), dim=-1)
@@ -144,8 +147,10 @@ def run_model():
     #### load the GPT-2 model 
     config = GPT2Config.from_json_file(os.path.join(args.model_name_or_path, 'config.json'))
     enc = GPT2Tokenizer.from_pretrained(args.model_name_or_path)
-    model = load_model(GPT2LMHeadModel(config), args.load_checkpoint, args, verbose=True)
+    model = GPT2LMHeadModel.from_pretrained(args.model_name_or_path)
+    #model = load_model(GPT2LMHeadModel(config), args.load_checkpoint, args, verbose=True)
     model.to(device)
+#    add_special_tokens_(model, enc)
     model.eval()
 
     history = []

@@ -25,8 +25,8 @@ import torch
 import torch.nn as nn
 from torch.nn import CrossEntropyLoss
 
-from pytorch_pretrained_bert.modeling_gpt2 import GPT2PreTrainedModel, GPT2Model, GPT2LMHead, Attention, Block, \
-    LayerNorm, MLP
+from transformers.modeling_gpt2 import GPT2PreTrainedModel, GPT2Model, GPT2LMHeadModel, Attention, Block, \
+    MLP
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +51,9 @@ class BlockFP16(Block):
     def __init__(self, n_ctx, config, scale=False):
         super(BlockFP16, self).__init__(n_ctx, config, scale)
         nx = config.n_embd
-        self.ln_1 = LayerNorm(nx, eps=config.layer_norm_epsilon)
+        self.ln_1 = nn.LayerNorm(nx, eps=config.layer_norm_epsilon)
         self.attn = AttentionFP16(nx, n_ctx, config, scale)
-        self.ln_2 = LayerNorm(nx, eps=config.layer_norm_epsilon)
+        self.ln_2 = nn.LayerNorm(nx, eps=config.layer_norm_epsilon)
         self.mlp = MLP(4 * nx, config)
 
 
@@ -64,7 +64,7 @@ class GPT2ModelFP16(GPT2Model):
         self.wpe = nn.Embedding(config.n_positions, config.n_embd)
         block = BlockFP16(config.n_ctx, config, scale=True)
         self.h = nn.ModuleList([copy.deepcopy(block) for _ in range(config.n_layer)])
-        self.ln_f = LayerNorm(config.n_embd, eps=config.layer_norm_epsilon)
+        self.ln_f = nn.LayerNorm(config.n_embd, eps=config.layer_norm_epsilon)
 
         self.apply(self.init_weights)
 

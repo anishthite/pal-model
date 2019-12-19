@@ -29,8 +29,8 @@
 12/18/2019 00:46:16 - INFO - __main__ -   config                        None
 12/18/2019 00:46:16 - INFO - __main__ -   device                        cpu
 12/18/2019 00:46:16 - INFO - __main__ -   n_gpu                         0
-12/18/2019 00:46:16 - INFO - pytorch_pretrained_bert.tokenization_gpt2 -   loading vocabulary file /home/anishthite/Workspace/transfer/models/small/vocab.json
-12/18/2019 00:46:16 - INFO - pytorch_pretrained_bert.tokenization_gpt2 -   loading merges file /home/anishthite/Workspace/transfer/models/small/merges.txt
+12/18/2019 00:46:16 - INFO - transformers.tokenization_gpt2 -   loading vocabulary file /home/anishthite/Workspace/transfer/models/small/vocab.json
+12/18/2019 00:46:16 - INFO - transformers.tokenization_gpt2 -   loading merges file /home/anishthite/Workspace/transfer/models/small/merges.txt
 12/18/2019 00:46:28 - INFO - gpt2_training.train_utils -   loading finetuned model from /home/anishthite/Workspace/transfer/models/small/pytorch_model.bin
 12/18/2019 00:46:29 - INFO - gpt2_training.train_utils -   loading transfomer only
 12/18/2019 00:46:29 - INFO - gpt2_training.train_utils -   in fp16, model.half() activated
