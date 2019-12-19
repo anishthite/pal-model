@@ -214,26 +214,26 @@ optimizer_grouped_parameters = [
 ]
 
 if args.fp16:
-    logger.info('in fp16, using FusedAdam')
-    try:
-        from apex.optimizers import FP16_Optimizer
-        from apex.optimizers import FusedAdam
-    except ImportError:
-        raise ImportError(
-            "Please install apex from https://www.github.com/nvidia/apex "
-            "to use distributed and fp16 training.")
+     logger.info('in fp16, using FusedAdam')
+    # try:
+    #     from apex.optimizers import FP16_Optimizer
+    #     from apex.optimizers import FusedAdam
+    # except ImportError:
+    #     raise ImportError(
+    #         "Please install apex from https://www.github.com/nvidia/apex "
+    #         "to use distributed and fp16 training.")
 
-    optimizer = FusedAdam(optimizer_grouped_parameters,
-                          lr=args.learning_rate,
-                          bias_correction=False,
-                          max_grad_norm=1.0)
-    if args.loss_scale == 0:
-        optimizer = FP16_Optimizer(optimizer, dynamic_loss_scale=True,
-                                   verbose=False)
-    else:
-        optimizer = FP16_Optimizer(optimizer,
-                                   static_loss_scale=args.loss_scale,
-                                   verbose=False)
+    # optimizer = FusedAdam(optimizer_grouped_parameters,
+    #                       lr=args.learning_rate,
+    #                       bias_correction=False,
+    #                       max_grad_norm=1.0)
+    # if args.loss_scale == 0:
+    #     optimizer = FP16_Optimizer(optimizer, dynamic_loss_scale=True,
+    #                                verbose=False)
+    # else:
+    #     optimizer = FP16_Optimizer(optimizer,
+    #                                static_loss_scale=args.loss_scale,
+    #                                verbose=False)
 else:
     optimizer = Adam(optimizer_grouped_parameters, args.learning_rate,
                      max_grad_norm=1.0)

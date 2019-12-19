@@ -60,6 +60,7 @@ logger.info('Done!\n')
 # Prepare Data
 #########################################################################
 logger.info('Downloading and Extracting Data...')
+print(DATA_FOLDER)
 if dargs.data == 'dummy':
     cmd = 'bash prepare4db.sh'
     ret = sp.run(cmd.split(' '), stdout=sp.PIPE, stderr=sp.STDOUT, cwd=DATA_FOLDER)
@@ -117,7 +118,7 @@ args = [
     '--valid_step', '5000',
     '--warmup_steps', '4000',
     '--normalize_data', 'true',
-    '--fp16', 'true',
+    '--fp16', 'false',
     '--lr_schedule', 'noam',
     '--loss_scale', '0.0',
     '--no_token_id', 'true',
