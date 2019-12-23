@@ -6,45 +6,38 @@ import torch.nn.functional as F
 
 END_OF_TEXT = 50256
 
-def cut_seq_to_eos(sentence, remove_id=[-1]):
-    sent=[]
-    for s in sentence:
-        if s in remove_id:
-            continue
-        if s != END_OF_TEXT:
-            sent.append(s)
-        else:
-            break
-    return sent
+
+def generate(model, conditioned_tokens, device, temperature, top_k, top_p):
+    generated_tokens = []
+    while True:
+        result = generate_next_token(model, conditioned_tokens, generated_tokens, device, temperature, top_k, top_p)
+        if result == END_OF_TEXT:
+            return generated_tokens[:-1]
 
 
-def generate(model, conditioned_tokens, device, temperature, top_k, top_p, max_len=20):
-    past = None
-    context_tokens = torch.tensor(conditioned_tokens, device=device, dtype=torch.long).unsqueeze(0)
-    position_ids = torch.arange(0, context_tokens.size(-1), dtype=torch.long, device=context_tokens.device)
-    
-    output = context_tokens.new_zeros([context_tokens.size(0),0])
-    prev = context_tokens
-    for x in range(max_len):
-        prev, probs, past = generate_next_token(model, context_tokens, position_ids, prev, past, device, temperature, top_k, top_p)
-        output = torch.cat((output, prev), dim=1)
-    return output
-        # if result == END_OF_TEXT:
-        #     return generated_tokens[:-1]
-
-
-def generate_next_token(model, context_tokens, position_ids, prev, past, device, temperature, top_k, top_p):
+def generate_next_token(model, conditioned_tokens, generated_tokens, device, temperature, top_k, top_p):
+    indexed_tokens = conditioned_tokens + generated_tokens
+    tokens_tensor = torch.tensor([indexed_tokens])
+    tokens_tensor = tokens_tensor.to(device)
     with torch.no_grad():
-        if not past:
-            hidden_states, past = model.transformer(prev, position_ids=position_ids, past=past, token_type_ids=None )
-        else:
-            hidden_states, past = model.transformer(prev, past=past)
-        logits = model.lm_head(hidden_states)
-        logits = logits[0, -1, :] / temperature
-        logits = top_filtering(logits, top_k=top_k, top_p=top_p)
-        probs = F.softmax(logits.unsqueeze(0), dim=-1)
-        prev = torch.multinomial(probs, 1)
-        return prev, probs[0][prev], past
+        outputs = model(tokens_tensor)
+        predictions = outputs[0]
+    logits = predictions[0, -1, :] / temperature
+    filtered_logits = top_filtering(logits, top_k=top_k, top_p=top_p)
+    probabilities = F.softmax(filtered_logits, dim=-1)
+    
+    #TESTING FOR PROBS
+    #from predictor import tokenizer
+    #all_tokens = torch.multinomial(probabilities, 10)
+    #torch.set_printoptions(profile="full")
+    # for x in range(len(probabilities)):
+    #    if probabilities[x] != 0.0000000000000000000000000:
+    #        print(tokenizer.decode(x))
+    #        print(probabilities[x])
+    #torch.set_printoptions(profile="default")
+    next_token = torch.multinomial(probabilities, 1)
+    generated_tokens.append(next_token.item())
+    return next_token.item()
 
 def top_filtering(logits, top_k=0, top_p=0.0, threshold=-float('Inf'), filter_value=-float('Inf')):
     """ Filter a distribution of logits using top-k, top-p (nucleus) and/or threshold filtering
