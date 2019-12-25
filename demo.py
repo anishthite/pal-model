@@ -52,7 +52,7 @@ download_model = partial(download_model_folder, DATA_FOLDER=MODEL_FOLDER)
 # model size:  could be one of 'small' (GPT2 with 117M), 'medium'(345M) or 'large' (1542M)
 # dataset: one of 'multiref' or 'dstc'
 # from_scratch: True : load model trained from scratch or False: load model trained from fine-tuning the GPT-2
-target_folder = download_model(model_size='small', dataset='multiref', from_scratch=False)
+target_folder = download_model(model_size='medium', dataset='multiref', from_scratch=False)
 logger.info('Done!\n')
 
 
@@ -65,8 +65,8 @@ if dargs.data == 'dummy':
     ret = sp.run(cmd.split(' '), stdout=sp.PIPE, stderr=sp.STDOUT, cwd=DATA_FOLDER)
 elif dargs.data == 'small':
     myCmd = os.popen('cd reddit_extractor; make -j 8; cd ..').read()
-    cmd = 'gzip -d ./train.tsv.gz'
-    ret = sp.run(cmd.split(' '), stdout=sp.PIPE, stderr=sp.STDOUT, cwd=DATA_FOLDER)
+    #cmd = 'gzip -d ./train.tsv.gz'
+    #ret = sp.run(cmd.split(' '), stdout=sp.PIPE, stderr=sp.STDOUT, cwd=DATA_FOLDER)
 elif dargs.data == 'full':
     myCmd = os.popen('cd reddit_extractor; SIZE=full make -j 8; cd ..').read()
     cmd = 'gzip -d ./train.tsv.gz'
