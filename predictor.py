@@ -24,8 +24,8 @@ def init(model_path, metadata):
     model.to(metadata["device"])
 
 
-def predict(sample, metadata):
-    conditioned_tokens = sum([tokenizer.encode(utterance) + [generator.END_OF_TEXT] for utterance in sample["history"]],[])
+def predict(metadata):
+    conditioned_tokens = sum([tokenizer.encode(utterance) + [generator.END_OF_TEXT] for utterance in metadata["history"]],[])
     prediction = generator.generate(model, conditioned_tokens, metadata["device"], metadata["temperature"], metadata["top_k"], metadata["top_p"])
     prediction = prediction.tolist()
     return tokenizer.decode(generator.cut_seq_to_eos(prediction[0])).encode('ascii','ignore').decode('ascii')
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     parser.add_argument("--temperature", type=float, default=1)
     parser.add_argument("--top_k", type=int, default=10)
     parser.add_argument("--top_p", type=float, default=0.0)
-    parser.add_argument("--max_history", type=int, default=2, help="Number of previous utterances to keep in history")
+    parser.add_argument("--max_history", type=int, default=20, help="Number of previous utterances to keep in history")
 
     args = parser.parse_args()
 
@@ -47,14 +47,13 @@ if __name__ == '__main__':
     metadata["top_k"] = args.top_k
     metadata["temperature"] = args.temperature
     init(DEFAULT_MODEL_PATH, metadata)
-    query = {}
-    query["history"] = []
+    metadata["history"] = []
     while True:
         raw_text = input("USER >> ")
-        query["history"].append(raw_text)
-        response = predict(query, metadata)
+        metadata["history"].append(raw_text)
+        response = predict(metadata)
         # print(response)
         # response = predictd({"history": raw_text}, metadata)
-        query["history"].append(response)
-        query["history"] = query["history"][-(2*args.max_history+1):]
+        metadata["history"].append(response)
+        metadata["history"] = metadata["history"][-(2*args.max_history+1):]
         print(response)
