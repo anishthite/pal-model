@@ -17,8 +17,16 @@ app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
+init(DEFAULT_MODEL_PATH, DEVICE_JSON)
+print('ready')
 
 with app.app_context():
+    
+    @app.route('/')
+    @cross_origin()
+    def hello():
+        return "hi"
+    
     @app.route('/predict', methods=['POST'])
     @cross_origin()
     def prediction():
@@ -38,6 +46,9 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    init(DEFAULT_MODEL_PATH, DEVICE_JSON)
+    #init(DEFAULT_MODEL_PATH, DEVICE_JSON)
     print("ready")
-    app.run()
+    #app.run(host='192.168.1.10')
+    #app.run(host='192.168.1.10', port=4240)
+    app.run(host='192.168.1.10', port=4240, ssl_context=('/home/tobias/fullchain1.pem', '/home/tobias/privkey1.pem'))
+    
