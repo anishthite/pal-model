@@ -41,7 +41,7 @@ with app.app_context():
     def save(metadata, response):
         with open('usage.log', "a") as log:
             metadata['history'].append(response)
-            log.write(''.join([str(metadata["history"]), '\n']))
+            log.write(''.join([str(metadata["id"]), str(metadata["history"]), '\n']))
 
 
 
