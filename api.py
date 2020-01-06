@@ -25,8 +25,17 @@ with app.app_context():
     @app.route('/')
     @cross_origin()
     def hello():
-        return "hi"
+        return "hi anika"
     
+    @app.route('/feedback', methods=['POST'])
+    @cross_origin()
+    def feedback():
+        if flask.request.method == 'POST':
+            data = flask.request.json
+            formathread = threading.Thread(target=format_save, args=(data,))
+            formathread.start()
+        return 'saved'
+
     @app.route('/predict', methods=['POST'])
     @cross_origin()
     def prediction():
@@ -37,6 +46,19 @@ with app.app_context():
             savethread = threading.Thread(target = save, args=(metadata, response,))
             savethread.start()            
             return response
+
+    def format_save(data):
+        save_feedback(format_feedback(data))
+
+    def format_feedback(data):
+        data["history"] = data["history"][:-1]
+        data["history"].append(data["feedback"])
+        return data
+
+    def save_feedback(data):
+        with open('feedback.log', 'a') as log:
+            log.write(''.join([str(data["id"]), str(data["history"]), '\n']))
+
 
     def save(metadata, response):
         with open('usage.log', "a") as log:
@@ -50,5 +72,6 @@ if __name__ == "__main__":
     print("ready")
     #app.run(host='192.168.1.10')
     #app.run(host='192.168.1.10', port=4240)
-    app.run(host='192.168.1.10', port=4240, ssl_context=('/home/tobias/fullchain1.pem', '/home/tobias/privkey1.pem'))
+    app.run(port=4240)
+    #app.run(host='192.168.1.10', port=4240, ssl_context=('/home/tobias/fullchain1.pem', '/home/tobias/privkey1.pem'))
     
