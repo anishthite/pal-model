@@ -4,7 +4,7 @@
 import os
 import logging
 
-from pytorch_pretrained_bert.file_utils import http_get
+from transformers.file_utils import http_get
 
 
 logger = logging.getLogger(__name__)
