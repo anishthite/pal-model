@@ -1,0 +1,6 @@
+add tokens to dataset
+train gpt2 on tokens
+train gpt2 on no dup
+make negative sample
+train bert
+

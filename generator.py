@@ -28,8 +28,8 @@ def generate(model, conditioned_tokens, device, temperature, top_k, top_p, max_l
     for x in range(max_len):
         prev, probs, past = generate_next_token(model, context_tokens, position_ids, prev, past, device, temperature, top_k, top_p)
         output = torch.cat((output, prev), dim=1)
-        if END_OF_TEXT in prev:
-            return output
+        # if END_OF_TEXT in prev:
+        #     return output
     return output
 
 
