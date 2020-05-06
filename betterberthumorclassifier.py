@@ -32,6 +32,13 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
 model = BertForSequenceClassification.from_pretrained('bert-base-cased')
 model = model.to(device)
 
+
+special_tokens_dict = {'sep_token': '<SEP>', 'eos_token': '<|endoftext|>'}
+tokenizer.add_special_tokens(special_tokens_dict)
+model.resize_token_embeddings(len(tokenizer)) 
+assert tokenizer.sep_token == '<SEP>'
+assert tokenizer.eos_token == '<|endoftext|>'
+
 class JokesDataset(Dataset):
     def __init__(self, dataset = 'humor_challenge_jokes_gpt2_better_qa_train.txt', block_size=512):
         super().__init__()
@@ -98,16 +105,16 @@ def evaluate(args, model, tokenizer, prefix=""):
             outputs = model(inputs, labels=labels)
             #outputs = model(inputs)
             prediction = np.argmax(np.round(torch.sigmoid(outputs[1]).cpu()), axis=1)
-            acc += np.count_nonzero(prediction==labels.cpu())/6
-            #print(prediction)
-            #print(labels)
-            #print(acc/6)
+            acc += np.count_nonzero(prediction==labels.cpu())
+            print(prediction)
+            print(labels)
+            print(acc)
             lm_loss = outputs[0]
             eval_loss += lm_loss.mean().item()
         nb_eval_steps += 1
 
     eval_loss = eval_loss / nb_eval_steps
-    acc = acc / nb_eval_steps
+    acc = acc / len(eval_dataset)
     perplexity = torch.exp(torch.tensor(eval_loss))
 
     result = {"eval_loss": eval_loss, "acc": acc}
@@ -166,7 +173,9 @@ def train(args, model, tokenizer):
                 sum_loss = 0.0
         
         # Store the model after each epoch to compare the performance of them
+        model.config.save_pretrained(models_folder)
         torch.save(model.state_dict(), os.path.join(models_folder, f"bettertrainbert_medium_joker_{args.maxseqlen}{epoch}{args.gradient_acums}.pt"))
+        model.save_pretrained(models_folder)
         evaluate(args, model, tokenizer)
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
-add tokens to dataset
-train gpt2 on tokens
-train gpt2 on no dup
-make negative sample
-train bert
-
+train bert + gpt2 model on the humor dataset
+create a retrival based gpt2 + bert rerank 
+create refrieval based gpt2 + incongruity + ambiguity rerank
+create retrieval baset gpt2 + local global rerank
+do the same with bert + gpt2
+explain thejoke

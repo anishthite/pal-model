@@ -31,6 +31,13 @@ tokenizer = GPT2Tokenizer.from_pretrained('gpt2-medium')
 model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
 model = model.to(device)
 
+special_tokens_dict = {'sep_token': '<SEP>', 'eos_token': '<|endoftext|>'}
+tokenizer.add_special_tokens(special_tokens_dict)
+model.resize_token_embeddings(len(tokenizer))
+assert tokenizer.sep_token == '<SEP>'
+assert tokenizer.eos_token == '<|endoftext|>'
+
+
 class JokesDataset(Dataset):
     def __init__(self, dataset = 'humor_challenge_jokes_gpt2_better_qa_train.txt', block_size=512):
         super().__init__()
@@ -152,6 +159,7 @@ def train(args, model, tokenizer):
         
         # Store the model after each epoch to compare the performance of them
         torch.save(model.state_dict(), os.path.join(models_folder, f"bettertraingpt2_medium_joker_{args.maxseqlen}{epoch}{args.gradient_acums}.pt"))
+        model.save_pretrained(models_folder)
         evaluate(args, model, tokenizer)
 
 if __name__ == "__main__":
