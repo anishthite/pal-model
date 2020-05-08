@@ -35,8 +35,8 @@ class HumorGenBart:
 
     def predict(self, query):
         #encode
-        query = query + ' <SEP> '
-        tokens = self.tokenizer.encode(query, max_length=100)
+        #query = '[CLS]' + query 
+        tokens = self.tokenizer.encode(query, max_length=100, add_special_tokens=False)
         inputs = torch.tensor([tokens], dtype=torch.long)
         inputs = inputs.to(device)
         #predict
@@ -44,11 +44,11 @@ class HumorGenBart:
         print(tokens)
         with torch.no_grad():
 
-
-            outputs = self.model(input_ids=inputs, decoder_input_ids=inputs)
-            print(outputs)
-            print(self.tokenizer.decode(torch.argmax(F.softmax(outputs[0], dim=-1), dim=-1)[0]))
-            output = self.model.generate(inputs, decoder_start_token_id=self.model.config.decoder.pad_token_id, top_p=0.9)
+            #28999
+            #outputs = self.model(input_ids=inputs, decoder_input_ids=inputs)
+            #print(outputs)
+            #print(self.tokenizer.decode(torch.argmax(F.softmax(outputs[0], dim=-1), dim=-1)[0]))
+            output = self.model.generate(inputs, decoder_start_token_id=28996, top_k=50)
         return self.tokenizer.decode(output.tolist()[0])
 
 

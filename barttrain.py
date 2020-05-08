@@ -47,15 +47,11 @@ class JokesDataset(Dataset):
 
         with open(dataset) as csv_file:
             for line in csv_file:
-                self.joke_list.append(line)
-        
-        text = ''.join(self.joke_list)
-
-        tokenized_text = tokenizer.encode(text)
-        for i in range(0, len(tokenized_text) - block_size + 1, block_size):  # Truncate in block of block_size
-            self.examples.append(tokenized_text[i : i + block_size])
-        
-        self.joke_list = []
+                splitindex = line.index('<SEP>')
+                tokenized_input = tokenizer.encode(line[:splitindex], max_length=block_size, pad_to_max_length = True, add_special_tokens=False)
+                tokenized_label = tokenizer.encode(line[splitindex:], max_length=block_size, pad_to_max_length = True, add_special_tokens=False)
+                self.examples.append(tokenized_input)
+                self.labels.append(tokenized_label)  
         tokenized_text = ''
         text = ''
 
@@ -63,9 +59,9 @@ class JokesDataset(Dataset):
         return len(self.examples)
 
     def __getitem__(self, item):
-        return torch.tensor(self.examples[item])
+        return torch.tensor(self.examples[item]), torch.tensor(self.labels[item])
 
-model = model.to(device)
+#model = model.to(device)
 model.train()
 
 
@@ -92,13 +88,13 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     for idx,joke in enumerate(eval_dataloader):
         print(str(idx) + ' ' + str(len(eval_dataloader)))
-        inputs, labels = (joke, joke)
+        inputs, labels = (joke[0], joke[1])
         #print(inputs)
         #print(labels)
         inputs = inputs.to(device)
         labels = labels.to(device)
         with torch.no_grad():
-            outputs = model(inputs, labels=labels)
+            outputs = model(inputs, decoder_input_ids=labels, labels=labels)
             lm_loss = outputs[0]
             eval_loss += lm_loss.mean().item()
         nb_eval_steps += 1
@@ -132,11 +128,14 @@ def train(args, model, tokenizer):
         
         for idx,joke in enumerate(joke_loader):
             print(str(idx) + ' ' + str(len(joke_loader)))
-            joke = joke.to(device)
+            #joke = joke.to(device)
             #torch.set_printoptions(threshold=50000)
             #print(joke)
             #print(joke.shape)
-            outputs = model(joke, lm_labels=joke)
+            inputs, labels = (joke[0], joke[1])
+            inputs = inputs.to(device)
+            labels = labels.to(device)
+            outputs = model(input_ids=inputs, decoder_input_ids=labels, lm_labels=labels)
             loss, logits = outputs[:2]
             loss = loss / args.gradient_acums
             print(loss)

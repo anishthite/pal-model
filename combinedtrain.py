@@ -28,8 +28,8 @@ LEARNING_RATE = 3e-5
 WARMUP_STEPS = 5000
 
 
-tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
-model = EncoderDecoderModel.from_encoder_decoder_pretrained('bert-base-cased', 'bert-base-cased')
+tokenizer = BertTokenizer.from_pretrained('bert-large-cased')
+model = EncoderDecoderModel.from_encoder_decoder_pretrained('bert-large-cased', 'bert-large-cased')
 model = model.to(device)
 
 special_tokens_dict = {'sep_token': '<SEP>', 'eos_token': '<|endoftext|>'}
@@ -44,30 +44,26 @@ class JokesDataset(Dataset):
     def __init__(self, dataset = 'humor_challenge_jokes_gpt2_better_qa_train.txt', block_size=512):
         super().__init__()
 
-        self.joke_list = []
         self.examples = []
+        self.labels = []
 
         with open(dataset) as csv_file:
             for line in csv_file:
-                # self.joke_list.append(line)
-        
-        # text = ''.join(self.joke_list)
-
-                tokenized_text = tokenizer.encode(line, max_length=block_size, pad_to_max_length = True)
-        # for i in range(0, len(tokenized_text) - block_size + 1, block_size):  # Truncate in block of block_size
-            # self.examples.append(tokenized_text[i : i + block_size])
-                self.examples.append(tokenized_text)           
-        self.joke_list = []
-        tokenized_text = ''
+                splitindex = line.index('<SEP>')
+                tokenized_input = tokenizer.encode(line[:splitindex], max_length=block_size, pad_to_max_length = True, add_special_tokens=False)
+                tokenized_label = tokenizer.encode(line[splitindex:], max_length=block_size, pad_to_max_length = True, add_special_tokens=False)
+                self.examples.append(tokenized_input)
+                self.labels.append(tokenized_label)           
+        tokenized_input = ''
         text = ''
 
     def __len__(self):
         return len(self.examples)
 
     def __getitem__(self, item):
-        return torch.tensor(self.examples[item])
+        return torch.tensor(self.examples[item]), torch.tensor(self.labels[item])
 
-model = model.to(device)
+#model = model.to(device)
 model.train()
 
 
@@ -94,11 +90,11 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     for idx,joke in enumerate(eval_dataloader):
         print(str(idx) + ' ' + str(len(eval_dataloader)))
-        inputs, labels = (joke, joke)
+        inputs, labels = (joke[0], joke[1])
         inputs = inputs.to(device)
         labels = labels.to(device)
         with torch.no_grad():
-            outputs = model(input_ids=inputs, decoder_input_ids=inputs, lm_labels=labels)
+            outputs = model(input_ids=inputs, decoder_input_ids=labels, lm_labels=labels)
             lm_loss = outputs[0]
             eval_loss += lm_loss.mean().item()
         nb_eval_steps += 1
@@ -123,8 +119,8 @@ def train(args, model, tokenizer):
     proc_seq_count = 0
     sum_loss = 0.0
     batch_count = 0
-    models_folder = "combinersencoder"
-    models_folder2 = "combinersdecoder"
+    models_folder = "combinerslargeencoder"
+    models_folder2 = "combinerslargedecoder"
     if not os.path.exists(models_folder):
         os.mkdir(models_folder)
     if not os.path.exists(models_folder2):
@@ -135,11 +131,16 @@ def train(args, model, tokenizer):
         
         for idx,joke in enumerate(joke_loader):
             print(str(idx) + ' ' + str(len(joke_loader)))
-            joke = joke.to(device)
+            #joke = joke.to(device)
             #torch.set_printoptions(threshold=50000)
             #print(joke)
             #print(joke.shape)
-            outputs = model(input_ids=joke, decoder_input_ids=joke,  lm_labels=joke)
+            inputs, labels = (joke[0], joke[1])
+            #print(inputs)
+            #print(labels)
+            inputs = inputs.to(device)
+            labels = labels.to(device)
+            outputs = model(input_ids=inputs, decoder_input_ids=labels, lm_labels=labels)
             loss, logits = outputs[:2]
             loss = loss / args.gradient_acums
             loss.backward()
