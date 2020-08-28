@@ -16,9 +16,6 @@ class Retriever():
     def __init__(self, dataset):
         self.dataset = pd.read_csv(dataset)
 
-        with open(dataset,'r') as datasetfile:
-            self.dataset = [line.rstrip('\n') for line in datasetfile]
-
     def predict(self, query):
         answers = [line for line in self.dataset if query in line]
         dataset_with_query = self.dataset[self.dataset['title'].str.contains(query) | self.dataset['selftext'].str.contains(query)]
