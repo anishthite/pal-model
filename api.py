@@ -8,7 +8,8 @@ app.config["DEBUG"] = True
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-DATASET = 'humor_challenge_data/gpt2_tokens_test.txt'
+# DATASET = 'humor_challenge_data/gpt2_tokens_test.txt'
+DATASET = 'humor_challenge_data/bot_data/aggregated.csv'
 retriever = Retriever(DATASET) 
 
 
