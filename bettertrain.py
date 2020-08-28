@@ -13,6 +13,7 @@ import logging
 logging.getLogger().setLevel(logging.CRITICAL)
 import warnings
 warnings.filterwarnings('ignore')
+from nltk.translate.bleu_score import sentence_bleu
 
 
 
@@ -47,13 +48,15 @@ class JokesDataset(Dataset):
 
         with open(dataset) as csv_file:
             for line in csv_file:
-                self.joke_list.append(line)
-        
+                #self.joke_list.append(line)
+                self.examples.append(tokenizer.encode(line)) 
         text = ''.join(self.joke_list)
 
         tokenized_text = tokenizer.encode(text)
-        for i in range(0, len(tokenized_text) - block_size + 1, block_size):  # Truncate in block of block_size
-            self.examples.append(tokenized_text[i : i + block_size])
+        
+
+       # for i in range(0, len(tokenized_text) - block_size + 1, block_size):  # Truncate in block of block_size
+          #  self.examples.append(tokenized_text[i : i + block_size])
         
         self.joke_list = []
         tokenized_text = ''
@@ -73,6 +76,41 @@ models_folder = "models"
 if not os.path.exists(models_folder):
     os.mkdir(models_folder)
 
+def bleu_evaluate(args, model, tokenizer, prefix=""):
+    # Loop to handle MNLI double evaluation (matched, mis-matched)
+
+    eval_dataset = JokesDataset(dataset = args.evaldataset, block_size=args.maxseqlen)
+    eval_sampler = SequentialSampler(eval_dataset)
+    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.batch)
+
+    # Eval!
+    print("***** Running bleu evaluation {} *****".format(prefix))
+    print("  Num examples = %d", len(eval_dataset))
+    print("  Batch size = %d", args.gradient_acums)
+    bleu = 0.0
+    nb_eval_steps = 0
+    model.eval()
+
+    for idx,joke in enumerate(eval_dataloader):
+        print(str(idx) + ' ' + str(len(eval_dataloader)))
+        inputs, labels = (joke, joke)
+        inputs = tokenizer.decode(inputs.tolist()[0])
+        inputs_list  = inputs.split('<SEP>')
+        inputs = inputs_list[0] + ' <SEP> '
+        labels = inputs_list[1]
+        inputs = torch.tensor([tokenizer.encode(inputs)])
+        inputs = inputs.to(device)
+        with torch.no_grad():
+            output = model.generate(inputs, top_k=50)
+            output = tokenizer.decode(output.tolist()[0])
+            bleu += sentence_bleu([labels], output)
+
+    bleu = bleu / len(eval_dataset)
+
+    result = {"bleu": bleu}
+
+    with open(args.outputfile, "a") as writer:
+        writer.write(str(args.maxseqlen) + str(args.gradient_acums) + str(result))
 
 
 def evaluate(args, model, tokenizer, prefix=""):
@@ -170,6 +208,6 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", default=5, type=int, required=True)
     parser.add_argument("--gradient_acums", default=6, type=int, required=True)
     parser.add_argument("--maxseqlen", default=500, type=int, required=True)
-    parser.add_argument("--batch", default=6, type=int, required=True)
+    parser.add_argument("--batch", default=6, type=int, required=False)
     args = parser.parse_args()
     train(args, model, tokenizer)
