@@ -24,15 +24,15 @@ with app.app_context():
             metadata = flask.request.json
             if isinstance(metadata["history"], str) :
                 metadata["history"] = (metadata["history"])
-            response = retriever.predict(metadata)
+            response = retriever.predict(metadata["history"])
             return response
 
 if __name__ == "__main__":
     #init(DEFAULT_MODEL_PATH, DEVICE_JSON)
     print("ready")
     #app.run(host='192.168.1.10')
-    #app.run(host='192.168.1.10', port=4240)
-    app.run(port=4240)
-    #app.run(host='192.168.1.10', port=4240, ssl_context=('/home/tobias/fullchain1.pem', '/home/tobias/privkey1.pem'))
+    app.run(host='192.168.1.10', port=4444)
+    #app.run(port=4240)
+    #app.run(host='192.168.1.10', port=4444, ssl_context=('/home/tobias/fullchain1.pem', '/home/tobias/privkey1.pem'))
 
 
