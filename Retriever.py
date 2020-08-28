@@ -17,7 +17,8 @@ class Retriever():
         self.dataset = pd.read_csv(dataset)
 
     def predict(self, query):
-        answers = [line for line in self.dataset if query in line]
+        print(type(query))
+        # query = query['history']
         dataset_with_query = self.dataset[self.dataset['title'].str.contains(query) | self.dataset['selftext'].str.contains(query)]
         if not dataset_with_query.empty:
             sample = dataset_with_query.sample(1)
