@@ -10,8 +10,8 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 # DATASET = 'humor_challenge_data/gpt2_tokens_test.txt'
 DATASET = 'humor_challenge_data/bot_data/aggregated.csv'
-DATASET = 'humor_challenge_data/bot_data/qa_pair_data.csv'
-DATASET = 'humor_challenge_data/bot_data/rjokestop10000.csv'
+# DATASET = 'humor_challenge_data/bot_data/qa_pair_data.csv'
+# DATASET = 'humor_challenge_data/bot_data/rjokestop10000.csv'
 retriever = Retriever(DATASET) 
 
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     print("ready")
     #app.run(host='192.168.1.10')
     #app.run(host='192.168.1.10', port=4444)
-    app.run(port=4240)
+    app.run(port=5000)
     #app.run(host='192.168.1.10', port=4444, ssl_context=('/home/tobias/fullchain1.pem', '/home/tobias/privkey1.pem'))
 
 
