@@ -19,10 +19,12 @@ class Retriever():
         self.tokenized_dataset =  pd.read_csv(tokenized_dataset)
 
     def predict(self, query):
-        print(type(query))
+        # print(type(query))
         # query = query['history']
-        # dataset_with_query = self.dataset[self.dataset['title'].str.contains(query) | self.dataset['selftext'].str.contains(query)]
-        dataset_with_query = self.dataset[self.tokenized_dataset['0'].apply(lambda x : query.lower() in x)]
+        if len(query.split(' ')) > 1:
+            dataset_with_query = self.dataset[self.dataset['title'].str.contains(query) | self.dataset['selftext'].str.contains(query)]
+        else:
+            dataset_with_query = self.dataset[self.tokenized_dataset['0'].apply(lambda x : query.lower() in x)]
         if not dataset_with_query.empty:
             sample = dataset_with_query.sample(1)
             return str(sample['title'].values[0]).strip('\n') +' '+str(sample['selftext'].values[0]).strip('\n') 
