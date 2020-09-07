@@ -7,7 +7,7 @@ import gensim.downloader as api
 class WordEmbedder:
     def __init__(self):
         #glove_file = datapath('/Users/irene/desktop/humor/pal-model/glove.6B/glove.6B.100d.txt')
-        word2vec_glove_file = get_tmpfile("/Users/irene/desktop/humor/pal-model/glove.6B/glove.6B.100d.word2vec.txt")
+        word2vec_glove_file = get_tmpfile("/Users/irene/desktop/humor/glove.6B/glove.6B.100d.word2vec.txt")
         #glove2word2vec(glove_file, word2vec_glove_file)
         self.model = KeyedVectors.load_word2vec_format(word2vec_glove_file)
 
