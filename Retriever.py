@@ -10,17 +10,34 @@
 #             return random.choice(answers)
 #         return "Sorry I don't have a joke about that right now"
 
+import gensim
+import gensim.downloader as api
+import scipy
+# DATASET = 'humor_challenge_data/bot_data/qa_total_word2vec.csv'
+# dataset = pd.read_csv(DATASET)
+dataset['word2vec'],''
+
+dataset['dataset'][np.argmin(dataset[word2vec].apply(lambda x: scipy.spatial.distance.cosine(x, model[query])).values)]
+
+
 
 import random
 import pandas as pd
 class Retriever():
-    def __init__(self, dataset, tokenized_dataset):
+    def __init__(self, dataset, tokenized_dataset, word2vec_dataset):
         self.dataset = pd.read_csv(dataset)
         self.tokenized_dataset =  pd.read_csv(tokenized_dataset)
+        self.word2vec_dataset = pd.read_csv(word2vec_dataset)
+        self.model = api.load("word2vec-google-news-300")
+
 
     def predict(self, query):
         # print(type(query))
         # query = query['history']
+        # a = sum([model[word] for word in query.split(' ') if word in model.vocab])
+        # mn = np.argmin(self.word2vec_dataset['word2vec'].apply(lambda x: scipy.spatial.distance.cosine(x,model[query])).values)
+        # mn_data = self.dataset.values[mn]
+        # return str(mn_data[0].strip('\n') + ' ' + str(mn_data[1].strip('\n')))
         if len(query.split(' ')) > 1:
             dataset_with_query = self.dataset[self.dataset['title'].str.contains(query) | self.dataset['selftext'].str.contains(query)]
         else:
