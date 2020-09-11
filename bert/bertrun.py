@@ -39,7 +39,7 @@ class HumorDetector:
         #predict
         with torch.no_grad():
             output = self.model(inputs)
-            print(torch.sigmoid(output[0]))
+            #print(torch.sigmoid(output[0]))
             prediction = np.argmax(np.round(torch.sigmoid(output[0]).cpu()), axis=1)
         return prediction, torch.max(torch.sigmoid(output[0])) 
 
@@ -47,7 +47,7 @@ class HumorDetector:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--modelpath", default='/Users/irene/desktop/humor/bettertrainbert_medium_joker_10066.pt', type=str, required=False)
+    parser.add_argument("--modelpath", default='/nethome/ilee300/Workspace/bettertrainbert_medium_joker_10066.pt', type=str, required=False)
     args = parser.parse_args()
     mymodel = HumorDetector(args.modelpath)
     while True:

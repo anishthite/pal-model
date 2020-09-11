@@ -13,10 +13,10 @@ class AnchorFinder:
     
     def getScore(self,input):
         answer, probs = self.model(input)
-        if answer == 0:
-            print("not joke :( probs " + str(probs))
-        else:    
-            print("Joke ;) probs " + str(probs))
+        # if answer == 0:
+        #     print("not joke :( probs " + str(probs))
+        # else:    
+        #     print("Joke ;) probs " + str(probs))
         if answer == 0:
             return -1
         else:
@@ -25,7 +25,7 @@ class AnchorFinder:
     def findAnchors(self,sentence, threshold):
         tokens = word_tokenize(sentence)
         orgScore = self.getScore(sentence)
-        print("original score:", orgScore)
+        #print("original score:", orgScore)
         anchorList = []
         basic_words = ["it", "a","The", "A", "."]
 
@@ -33,9 +33,9 @@ class AnchorFinder:
             if token in basic_words:
                 continue
             candSentence = sentence.replace(token,"")
-            print(candSentence)
+            #print(candSentence)
             probs = self.getScore(candSentence)
-            print("token: ", token, "\n probability:", probs,"diff: ",(orgScore - probs),"\n\n")
+            #print("token: ", token, "\n probability:", probs,"diff: ",(orgScore - probs),"\n\n")
             if orgScore - probs >= threshold:
                 if token not in anchorList:
                     anchorList.append(token)
@@ -61,7 +61,7 @@ class AnchorDictionary:
             dict_file.close()
     
     def save_file(self,file_name):
-        dict_file = open(file_name,"ab")
+        dict_file = open(file_name,"wb")
         pickle.dump(self.dictionary, dict_file)
         dict_file.close()
 
@@ -76,11 +76,11 @@ class AnchorDictionary:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--modelpath", default='/Users/irene/desktop/humor/bettertrainbert_medium_joker_10066.pt', type=str, required=False)
+    parser.add_argument("--modelpath", default='/nethome/ilee300/Workspace/bettertrainbert_medium_joker_10066.pt', type=str, required=False)
     parser.add_argument('--test', default=True, action='store_false', help='Bool type')
     parser.add_argument("--saveFile", default="anchorDictionary.pkl",type=str,required=False)
-    parser.add_argument("--dataFile", default="../humor_challenge_data/bot_data/qa_pair_data.csv",type=str,required=False)
-    parser.add_argument("--threshold", default=0.2,type=float,required=False )
+    parser.add_argument("--dataFile", default="/nethome/ilee300/Workspace/pal_model/humor_challenge_data/bot_data/qa_pair_data.csv",type=str,required=False)
+    parser.add_argument("--threshold", default=0.1,type=float,required=False )
 
     args = parser.parse_args()
     finder = AnchorFinder(args.modelpath)
@@ -94,26 +94,26 @@ if __name__ == "__main__":
             anchorList = finder.findAnchors(query, args.threshold)
             print(anchorList)
             anchor_dictionary.add_item(anchorList,query)
+            anchor_dictionary.save_file(args.saveFile)
         print(anchor_dictionary.dictionary)
     else:
-        dataset = open("../humor_challenge_data/bot_data/pun_list.txt", 'r')
-        for joke in dataset:
-            if joke != "\n":
-                print(joke)
-            anchorList = finder.findAnchors(joke, args.threshold)
-            print(anchorList)
-            anchor_dictionary.add_item(anchorList,joke)
-        print(anchor_dictionary.dictionary)
-
-        # jokeList = dataset['title'] + dataset['selftext']
-        # for joke in jokeList:
-        #     if type(joke) !=str:
-        #         continue
+        #dataset = open("../humor_challenge_data/bot_data/pun_list.txt", 'r')
+        # for joke in dataset:
+        #     if joke != "\n":
+        #         print(joke)
         #     anchorList = finder.findAnchors(joke, args.threshold)
+        #     print(anchorList)
         #     anchor_dictionary.add_item(anchorList,joke)
-
-
-    #anchor_dictionary.save_file(args.saveFile)
+        # print(anchor_dictionary.dictionary)
+        dataset = pd.read_csv("/nethome/ilee300/Workspace/pal-model/humor_challenge_data/bot_data/qa_total.csv")
+        jokeList = dataset['title'] + dataset['selftext']
+        for joke in jokeList:
+            if type(joke) !=str:
+                continue
+            anchorList = finder.findAnchors(joke, args.threshold)
+            anchor_dictionary.add_item(anchorList,joke)
+        anchor_dictionary.save_file(args.saveFile)
+        print("Done")
 
 
 
