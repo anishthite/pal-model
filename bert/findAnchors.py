@@ -78,8 +78,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--modelpath", default='/nethome/ilee300/Workspace/bettertrainbert_medium_joker_10066.pt', type=str, required=False)
     parser.add_argument('--test', default=True, action='store_false', help='Bool type')
-    parser.add_argument("--saveFile", default="anchorDictionary.pkl",type=str,required=False)
-    parser.add_argument("--dataFile", default="/nethome/ilee300/Workspace/pal_model/humor_challenge_data/bot_data/qa_pair_data.csv",type=str,required=False)
+    parser.add_argument("--saveFile", default="anchorDictionary2.pkl",type=str,required=False)
+    parser.add_argument("--dataFile", default="/nethome/ilee300/Workspace/pal_model/humor_challenge_data/bot_data/non_qa_total.csv",type=str,required=False)
     parser.add_argument("--threshold", default=0.1,type=float,required=False )
 
     args = parser.parse_args()
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         #     print(anchorList)
         #     anchor_dictionary.add_item(anchorList,joke)
         # print(anchor_dictionary.dictionary)
-        dataset = pd.read_csv("/nethome/ilee300/Workspace/pal-model/humor_challenge_data/bot_data/qa_total.csv")
+        dataset = pd.read_csv("/nethome/ilee300/Workspace/pal-model/humor_challenge_data/bot_data/non_qa_total.csv")
         jokeList = dataset['title'] + dataset['selftext']
         for joke in jokeList:
             if type(joke) !=str:
