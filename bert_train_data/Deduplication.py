@@ -1,5 +1,5 @@
 # Imports
-import cPickle as pickle
+import pickle
 import write_functions as w
 import nltk
 import nltk.corpus
@@ -10,48 +10,48 @@ import nltk.stem.snowball
 from collections import OrderedDict
 import sys  
 
-reload(sys)  
-sys.setdefaultencoding('utf8')
+# reload(sys)  
+# sys.setdefaultencoding('utf8')
 
 # Declare variables
 unprocessed_sentences = []
 
 # Import the sentences that need processing in pickle
-filename = "onelinefun.pickle"
-unprocessed_sentences = pickle.load(open(filename))
-print "File succesfully imported. The file contains %d sentences." %len(unprocessed_sentences)
+filename = "/nethome/ilee300/Workspace/Short-Text-Corpus-For-Humor-Detection/datasets/proverbs.pickle"
+unprocessed_sentences = pickle.load(open(filename,'rb'))
+print( "File succesfully imported. The file contains %d sentences." %len(unprocessed_sentences))
 
 #in case more pickle files need to be imported
-filename2 = 'goodriddlesnow.pickle'
-unprocessed_sentences2 = pickle.load(open(filename2))
-print "File succesfully imported. The file contains %d sentences." %len(unprocessed_sentences2)
+filename2 = '/nethome/ilee300/Workspace/Short-Text-Corpus-For-Humor-Detection/datasets/reuters_headlines.pickle'
+unprocessed_sentences2 = pickle.load(open(filename2,'rb'))
+print( "File succesfully imported. The file contains %d sentences." %len(unprocessed_sentences2))
 for i in unprocessed_sentences2:
     unprocessed_sentences.append(i)
     
-filename3 = 'funnyshortjokes.pickle'
-unprocessed_sentences3 = pickle.load(open(filename3))
-print "File succesfully imported. The file contains %d sentences." %len(unprocessed_sentences3)
-for i in unprocessed_sentences3:
-    unprocessed_sentences.append(i)
+# filename3 = '/nethome/ilee300/Workspace/Short-Text-Corpus-For-Humor-Detection/datasets/wiki_sentences.pickle'
+# unprocessed_sentences3 = pickle.load(open(filename3,'rb'))
+# print ("File succesfully imported. The file contains %d sentences." %len(unprocessed_sentences3))
+# for i in unprocessed_sentences3:
+#     unprocessed_sentences.append(i)
 
-filename4 = 'laughfactory.pickle'
-unprocessed_sentences4 = pickle.load(open(filename4))
-print "File succesfully imported. The file contains %d sentences." %len(unprocessed_sentences4)
-for i in unprocessed_sentences4:
-    unprocessed_sentences.append(i)
+# filename4 = 'laughfactory.pickle'
+# unprocessed_sentences4 = pickle.load(open(filename4))
+# print "File succesfully imported. The file contains %d sentences." %len(unprocessed_sentences4)
+# for i in unprocessed_sentences4:
+#     unprocessed_sentences.append(i)
 
-filename5 = 'humorous_oneliners_undoubled.pickle'
-unprocessed_sentences5 = pickle.load(open(filename5))
-print "File succesfully imported. The file contains %d sentences." %len(unprocessed_sentences5)
-for i in unprocessed_sentences5:
-    unprocessed_sentences.append(i)
+# filename5 = 'humorous_oneliners_undoubled.pickle'
+# unprocessed_sentences5 = pickle.load(open(filename5))
+# print "File succesfully imported. The file contains %d sentences." %len(unprocessed_sentences5)
+# for i in unprocessed_sentences5:
+#     unprocessed_sentences.append(i)
    
-file_object = open('Danoah_oneliners_60.txt','r')
-textfile_oneliners = file_object.readlines()
-unprocessed_sentences += textfile_oneliners
+# file_object = open('Danoah_oneliners_60.txt','r')
+# textfile_oneliners = file_object.readlines()
+# unprocessed_sentences += textfile_oneliners
 
 
-print "%d lines were imported and are ready for deduplication!"%len(unprocessed_sentences)
+print ("%d lines were imported and are ready for deduplication!"%len(unprocessed_sentences))
 # In[19]:
 
 # Get default English stopwords and extend with punctuation
@@ -78,7 +78,7 @@ tokensets = []
 for i in unprocessed_sentences:
     tokensets.append(generate_bow(i))
 
-print "Finished creating bow representations."
+print ("Finished creating bow representations.")
 
 # Compare all sentences s for similarity with the sentences on index > s
 for i in range(len(unprocessed_sentences)+1):
@@ -87,16 +87,16 @@ for i in range(len(unprocessed_sentences)+1):
             if is_ci_token_stopword_set_match(tokensets[i], tokensets[item]) == True:
                 remove_items.append(item)
     if i%50 == 0: # Used to track progress of the deduplication
-        print "processed %d sentences"%i
+        print ("processed %d sentences"%i)
         
 remove_items = list(OrderedDict.fromkeys(remove_items))
-print "Removed items:"
-print remove_items
+print ("Removed items:")
+print (remove_items)
 
 for item in range(len(unprocessed_sentences)):
     if item not in remove_items:
         keep_sentences.append(unprocessed_sentences[item])
 
-print "Amount of kept items: %d"%len(keep_sentences)
+print ("Amount of kept items: %d"%len(keep_sentences))
 # Write away processed data
-w.write_to_pickle("humorous_jokes",keep_sentences)
+w.write_to_pickle("negatives_new_raw",keep_sentences)
