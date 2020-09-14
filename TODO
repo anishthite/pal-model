@@ -4,3 +4,7 @@ create refrieval based gpt2 + incongruity + ambiguity rerank
 create retrieval baset gpt2 + local global rerank
 do the same with bert + gpt2
 explain thejoke
+
+filter new set of jokes and save in appropriate csv form
+create random test data from new data + data from reddit
+train and evalulate our model.
