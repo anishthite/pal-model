@@ -26,7 +26,7 @@ class HumorDetector:
         assert self.tokenizer.eos_token == '<|endoftext|>'
 
         self.model = self.model.to(device)
-        self.model.eval()
+        self.model.train()
             
     def __call__(self, query):
         return self.predict(query)
@@ -50,6 +50,7 @@ if __name__ == "__main__":
     parser.add_argument("--modelpath", default='/nethome/ilee300/Workspace/bettertrainbert_medium_joker_10066.pt', type=str, required=False)
     args = parser.parse_args()
     mymodel = HumorDetector(args.modelpath)
+    mymodel.model.eval()
     while True:
         query = input("Enter joke or not joke: ")
         answer, probs = mymodel(query)
