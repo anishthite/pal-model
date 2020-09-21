@@ -13,17 +13,22 @@
 import gensim
 import gensim.downloader as api
 import scipy
-# DATASET = 'humor_challenge_data/bot_data/qa_total_word2vec.csv'
-# dataset = pd.read_csv(DATASET)
-dataset['word2vec'],''
-
-dataset['dataset'][np.argmin(dataset[word2vec].apply(lambda x: scipy.spatial.distance.cosine(x, model[query])).values)]
-
 
 
 import random
 import pandas as pd
+from bert.bertrun import *
+# DATASET = 'humor_challenge_data/bot_data/qa_total_word2vec.csv'
+# dataset = pd.read_csv(DATASET)
+# dataset['word2vec'],''
+
+# dataset['dataset'][np.argmin(dataset[word2vec].apply(lambda x: scipy.spatial.distance.cosine(x, model[query])).values)]
+
+
+model_path='/nethome/ilee300/Workspace/pal-model/trained_models/bettertrainbert_medium_joker_50066.pt'
+mymodel = HumorDetector(model_path)
 class Retriever():
+    
     def __init__(self, dataset, tokenized_dataset, word2vec_dataset):
         self.dataset = pd.read_csv(dataset)
         self.tokenized_dataset =  pd.read_csv(tokenized_dataset)
@@ -46,3 +51,44 @@ class Retriever():
             sample = dataset_with_query.sample(1)
             return str(sample['title'].values[0]).strip('\n') +' '+str(sample['selftext'].values[0]).strip('\n') 
         return "Sorry I don't have a joke about that right now"
+
+
+    def jokeCheck(thresh, jokeList):
+        '''
+            Randomly selects jokes among those that have probability above the threshold
+            Parameter:
+                threshold : the threshold that is used to evaluate whether the joke is "good"
+                jokeList: list of jokes retrieved from the dataset
+
+            Return:
+                None: if the jokeList is empty
+                str: 1 joke with a probability higher than the threshold is randomly chosen. If nth is above the threshold, the max is chosen.
+
+        '''
+        if not jokeList:
+            return None
+        
+        mymodel.model.eval()
+        above_thresh = []
+        max_joke = (0,'')
+        for jokes in jokeList:
+            answer, probs = mymodel(jokes)
+            if answer == 1:
+                if( probs > thresh):
+                    above_thresh.append(jokes)
+                    if probs > max_joke[0]:
+                        max_joke = (probs, jokes)
+        if above_thresh:
+            print("above thresh : ", above_thresh)
+            return np.random.choice(above_thresh,1)
+        elif max_joke[0] != 0:
+            print("nth above thresh")
+            return max_joke[1]
+        else:
+            print("no joke found")
+            return None 
+
+if __name__ == "__main__":
+    jokeList = ["What do you call a dinosaur that is sleeping? A dino-snore!", "cow on the moon goes moo", "What did the left eye say to the right eye? Between us, something smells"]
+    ans = Retriever.jokeCheck(0.3, jokeList)
+    print("\n\n\n", ans, "\n\n")
