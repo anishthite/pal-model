@@ -10,17 +10,18 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 # DATASET = 'humor_challenge_data/gpt2_tokens_test.txt'
 # DATASET = 'humor_challenge_data/bot_data/aggregated.csv'
-# DATASET = 'humor_challenge_data/bot_data/qa_pair_data.csv'
+# DATASET = 'humor_challenge_data/bot_data/qa_repair_data.csv'
 # DATASET = 'humor_challenge_data/bot_data/rjokescharacterlimit.csv'
 # DATASET = 'humor_challenge_data/bot_data/qa_total.csv'
+from Retriever import Retriever
 DATASET = 'bert_train_data/qa_total.csv'
-TOKENIZED_DATASET = 'humor_challenge_data/bot_data/qa_total_tokenized.csv'
-WORD2VEC_DATASET = 'humor_challenge_data/bot_data/qa_total_word2vec.csv'
+TOKENIZED_DATASET = 'humor_challenge_data/bot_data/qa_total_tokenized.txt'
+# WORD2VEC_DATASET = 'humor_challenge_data/bot_data/qa_total_word2vec.csv'
 # DATASET = 'humor_challenge_data/bot_data/non_qa_total.csv'
 # TOKENIZED_DATASET = 'humor_challenge_data/bot_data/non_qa_total_tokenized.csv'
 # 
 
-retriever = Retriever(DATASET, TOKENIZED_DATASET, WORD2VEC_DATASET) 
+retriever = Retriever(DATASET, TOKENIZED_DATASET) 
 
 
 def log(metadata):
