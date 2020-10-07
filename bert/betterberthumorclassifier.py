@@ -15,7 +15,7 @@ logging.getLogger().setLevel(logging.CRITICAL)
 import warnings
 warnings.filterwarnings('ignore')
 import numpy as np
-
+from bertrun import *
 
 device = 'cpu'
 if torch.cuda.is_available():
@@ -49,9 +49,15 @@ class JokesDataset(Dataset):
 
         with open(dataset) as csv_file:
             for line in csv_file:
-                myline, label = line.split('\t')
+                try:
+                    myline, label = line.split('\t')
+                    label = float(label)
+                    
+                except:
+                    continue
                 self.examples.append(tokenizer.encode(myline, max_length=block_size, pad_to_max_length = True))
-                self.labels.append(float(label))
+                self.labels.append(label)
+        print("done")
         # text = ''.join(self.joke_list)
 
         # tokenized_text = tokenizer.encode(text)
@@ -134,7 +140,7 @@ def train(args, model, tokenizer):
     proc_seq_count = 0
     sum_loss = 0.0
     batch_count = 0
-    models_folder = "trained_models"
+    models_folder = "../trained_models"
     if not os.path.exists(models_folder):
         os.mkdir(models_folder)
     for epoch in range(args.epochs):
@@ -173,10 +179,11 @@ def train(args, model, tokenizer):
                 sum_loss = 0.0
         
         # Store the model after each epoch to compare the performance of them
-        model.config.save_pretrained(models_folder)
-        torch.save(model.state_dict(), os.path.join(models_folder, f"bettertrainbert_medium_joker_{args.maxseqlen}{epoch}{args.gradient_acums}.pt"))
-        model.save_pretrained(models_folder)
-        evaluate(args, model, tokenizer)
+        if(epoch == args.epochs - 1):
+            model.config.save_pretrained(models_folder)
+            torch.save(model.state_dict(), os.path.join(models_folder, f"bettertrainbert_medium_joker_{args.maxseqlen}{epoch}{args.gradient_acums}.pt"))
+            model.save_pretrained(models_folder)
+            evaluate(args, model, tokenizer)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -184,8 +191,12 @@ if __name__ == "__main__":
     parser.add_argument("--evaldataset", default=None, type=str, required=True)
     parser.add_argument("--outputfile", default=None, type=str, required=True)
     parser.add_argument("--epochs", default=5, type=int, required=True)
-    parser.add_argument("--gradient_acums", default=6, type=int, required=True)
-    parser.add_argument("--maxseqlen", default=500, type=int, required=True)
-    parser.add_argument("--batch", default=6, type=int, required=True)
+    parser.add_argument("--gradient_acums", default=6, type=int, required=False)
+    parser.add_argument("--maxseqlen", default=500, type=int, required=False)
+    parser.add_argument("--batch", default=6, type=int, required=False)
+    parser.add_argument('--pretrained', default=False, action='store_true', help='Bool type')
     args = parser.parse_args()
+    if (args.pretrained) :
+        model_path = "/nethome/ilee300/Workspace/bettertrainbert_medium_joker_10066.pt"
+        model = HumorDetector(model_path).model
     train(args, model, tokenizer)

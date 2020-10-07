@@ -1,13 +1,15 @@
 import pandas as pd
 import nltk
-DATASET = 'humor_challenge_data/bot_data/non_qa_total.csv'
-dataset = pd.read_csv(DATASET)
-def f(x):
-    return nltk.word_tokenize(str(x[0]).lower()) + nltk.word_tokenize(str(x[1]).lower())
-# tokenized_tile = dataset['title'].apply(lambda x: nltk.word_tokenize(str(x)))
-# tokenized_selftext = dataset['selftext'].apply(lambda x: nltk.word_tokenize(str(x)))
-tokenized_title = dataset[['title','selftext']].apply(f, axis =1)
-print(len(dataset), len(tokenized_title))
+import numpy as np
+
+# DATASET = 'humor_challenge_data/bot_data/non_qa_total.csv'
+# dataset = pd.read_csv(DATASET)
+# def f(x):
+#     return nltk.word_tokenize(str(x[0]).lower()) + nltk.word_tokenize(str(x[1]).lower())
+# # tokenized_tile = dataset['title'].apply(lambda x: nltk.word_tokenize(str(x)))
+# # tokenized_selftext = dataset['selftext'].apply(lambda x: nltk.word_tokenize(str(x)))
+# tokenized_title = dataset[['title','selftext']].apply(f, axis =1)
+# print(len(dataset), len(tokenized_title))
 # tokenized_title.to_csv('humor_challenge_data/bot_data/non_qa_total_tokenized.csv', index = False)
 # # print(tokenized_title)
 
@@ -26,3 +28,64 @@ print(len(dataset), len(tokenized_title))
 # dataset = dataset[dataset['selftext'] != '[removed]']
 # dataset = dataset[~dataset['selftext'].isnull()]
 # dataset.to_csv('humor_challenge_data/bot_data/qa_total.csv', index = False)
+# 
+import gensim
+import gensim.downloader as api
+DATASET = 'humor_challenge_data/bot_data/qa_total_tokenized.csv'
+dataset = pd.read_csv(DATASET)
+# model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+model = api.load("word2vec-google-news-300")  # download the model and return as object ready for use
+def find_joke_vector(x):
+    l = [model[word] for word in x if word in model.vocab]
+    return sum(l) / len(l)
+
+
+
+dataset['word2vec'] = dataset['0'].apply(lambda x: find_joke_vector(x))
+print(model['hello'], model['hello']+model['cool'])
+
+a = np.zeros((len(dataset['word2vec'].values), 300))
+for i in range(len(dataset['word2vec'].values)):
+    a[i] = dataset['word2vec'].values[i]
+
+# l = []
+# # for i in range(len(dataset['word2vec'])):
+# #     l.append([float(i) for i in list(filter(lambda a: a != '', dataset['word2vec'][i].replace('\n','').strip('][').split(' ')))])
+np.savez_compressed('humor_challenge_data/bot_data/qa_total_word2vec', a)
+
+
+
+
+DATASET = 'humor_challenge_data/bot_data/non_qa_total_tokenized.csv'
+dataset = pd.read_csv(DATASET)
+# # model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+# # model = api.load("word2vec-google-news-300")  # download the model and return as object ready for use
+# # def find_joke_vector(x):
+# #   l = [model[word] for word in x if word in model.vocab]
+# #     return sum(l) / len(l)
+
+
+
+dataset['word2vec'] = dataset['0'].apply(lambda x: find_joke_vector(x))
+a = np.zeros((len(dataset['word2vec'].values), 300))
+for i in range(len(dataset['word2vec'].values)):
+    a[i] = dataset['word2vec'].values[i]
+# print(model['hello'], model['hello']+model['cool'])
+
+# # l = []
+# # for i in range(len(dataset['word2vec'])):
+# #     l.append([float(i) for i in list(filter(lambda a: a != '', dataset['word2vec'][i].replace('\n','').strip('][').split(' ')))])
+np.savez_compressed('humor_challenge_data/bot_data/non_qa_total_word2vec', a)
+
+# # dataset.to_csv('humor_challenge_data/bot_data/qa_total_word2vec.csv', index = False)
+# # 
+# DATASET = 'humor_challenge_data/bot_data/non_qa_total_tokenized.csv'
+# dataset = pd.read_csv(DATASET)
+# def find_joke_vector(x):
+#     l = [model[word] for word in x if word in model.vocab]
+#     return sum(l) / len(l)
+# l = []
+# for i in dataset['0'].values:
+#     l.append(find_joke_vector(x))
+# n = np.array(l)
+# print(n.shape)
