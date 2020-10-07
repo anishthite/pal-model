@@ -1,7 +1,9 @@
 import flask
 from flask_cors import CORS, cross_origin
 import os
-from Retriever import Retriever
+from retriever.Retriever import Retriever
+from gpt2.gpt2run import HumorGenGPT 
+
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -18,6 +20,7 @@ TOKENIZED_DATASET = 'humor_challenge_data/bot_data/qa_total_tokenized.csv'
 # TOKENIZED_DATASET = 'humor_challenge_data/bot_data/non_qa_total_tokenized.csv'
 
 retriever = Retriever(DATASET, TOKENIZED_DATASET) 
+generator = HumorGenGPT('/home/tobias/humor/pal-model/gpt2/trained_models/gpt2_tokens_tag_10056.pt')
 
 
 def log(metadata):
@@ -46,6 +49,16 @@ with app.app_context():
             if isinstance(metadata["history"], str) :
                 metadata["history"] = (metadata["history"])
             response = retriever.predict(metadata["history"])
+            return response
+
+    @app.route('/generate_gpt2_ind', methods=['POST'])
+    @cross_origin()
+    def generate_gpt2_ind():
+        if flask.request.method == 'POST':
+            metadata = flask.request.json
+            if isinstance(metadata["history"], str):
+                metadata["history"] = (metadata["history"])
+            response = generator.predict(metadata["history"])
             return response
 
 if __name__ == "__main__":
