@@ -25,21 +25,21 @@ class HumorGenGPT:
         #self.model = self.model.to(device)
         self.model.eval()
             
-    def __call__(self, query):
-        return self.predict(query)
+    def __call__(self, query, **kwargs):
+        return self.predict(query, **kwargs)
 
-    def predict(self, query):
+    def predict(self, query, **kwargs):
         #encode
         query = query + ' <BOS> '
-        print(query)
+        #print(query)
         tokens = self.tokenizer.encode(query)
-        print(tokens)
+        #print(tokens)
         inputs = torch.tensor([tokens], dtype=torch.long)
-        print(inputs)
+        #print(inputs)
         #inputs = inputs.to(device)
         #predict
         with torch.no_grad():
-            output = self.model.generate(inputs, top_k=50)
+            output = self.model.generate(inputs, **kwargs) #temp 0.8
         output = self.tokenizer.decode(output.tolist()[0]) 
         eos_index = output.find('<|endoftext|>')
         if eos_index != -1:
@@ -54,8 +54,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--modelpath", default='/home/tobias/humor/pal-model/gpt2/trained_models/gpt2_tokens_tag_10056.pt', type=str, required=False)
     args = parser.parse_args()
+    print(args.modelpath)
     mymodel = HumorGenGPT(args.modelpath)
     while True:
         query = input("Enter Question: ")
+        answer = mymodel(query, do_sample=True)
+        print(answer)
         answer = mymodel(query)
         print(answer)
