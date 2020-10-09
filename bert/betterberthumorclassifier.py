@@ -84,10 +84,13 @@ if not os.path.exists(models_folder):
 
 
 
-def evaluate(args, model, tokenizer, prefix=""):
+def evaluate(args, model, tokenizer, epoch_num, prefix=""):
     # Loop to handle MNLI double evaluation (matched, mis-matched)
-
-    eval_dataset = JokesDataset(dataset = args.evaldataset, block_size=args.maxseqlen)
+    eval_dataset = None
+    if epoch_num == args.epochs:
+        eval_dataset = JokesDataset(dataset = args.testdataset, block_size=args.maxseqlen)
+    else:
+        eval_dataset = JokesDataset(dataset = args.devdataset, block_size=args.maxseqlen)
     eval_sampler = SequentialSampler(eval_dataset)
     eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.batch)
 
@@ -99,6 +102,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     acc = 0.0
     nb_eval_steps = 0
     model.eval()
+    true_pos =true_neg=false_pos=false_neg = 0
 
     for idx,joke in enumerate(eval_dataloader):
         print(str(idx) + ' ' + str(len(eval_dataloader)))
@@ -112,9 +116,20 @@ def evaluate(args, model, tokenizer, prefix=""):
             #outputs = model(inputs)
             prediction = np.argmax(np.round(torch.sigmoid(outputs[1]).cpu()), axis=1)
             acc += np.count_nonzero(prediction==labels.cpu())
-            print(prediction)
-            print(labels)
-            print(acc)
+            # print(prediction)
+            # print(labels)
+            # print(acc)
+            for i in range(len(prediction)):
+                if prediction[i] == 1:
+                    if labels.cpu()[i] == 1:
+                        true_pos +=1
+                    else:
+                        false_pos +=1
+                else:
+                    if labels.cpu()[i] == 1:
+                        false_neg +=1
+                    else:
+                        true_neg+=1
             lm_loss = outputs[0]
             eval_loss += lm_loss.mean().item()
         nb_eval_steps += 1
@@ -122,15 +137,28 @@ def evaluate(args, model, tokenizer, prefix=""):
     eval_loss = eval_loss / nb_eval_steps
     acc = acc / len(eval_dataset)
     perplexity = torch.exp(torch.tensor(eval_loss))
-
+    precision = true_pos/(true_pos + false_pos)
+    recall = true_pos/(true_pos + false_neg)
+    f1 = 2*(precision * recall) / (precision + recall)
     result = {"eval_loss": eval_loss, "acc": acc}
 
+    epoch_header = ""
+    if epoch_num == args.epochs:
+        epoch_header = "Final test  ||"
+    else:
+        epoch_header = "epoch[{}] ||".format(epoch_num)
+    save_log = "{:<15}  maxSequence length : {} gradeint accumulation: {}, eval_loss: {}, accuracy: {}, precision : {}, recall : {}, f1 : {}\n\n".format(
+        epoch_header, args.maxseqlen, args.gradient_acums, eval_loss,acc,precision,recall,f1
+    )
+    
+    print(save_log)
     with open(args.outputfile, "a") as writer:
-        writer.write(str(args.maxseqlen) + str(args.gradient_acums) + str(result))
+        # writer.write(str(args.maxseqlen) + str(args.gradient_acums) + str(result))
+        writer.write(save_log)
+        writer.close()
     return result
 
 def train(args, model, tokenizer):
-
     dataset = JokesDataset(dataset=args.traindataset, block_size=args.maxseqlen)
     joke_loader = DataLoader(dataset, batch_size=args.batch, shuffle=True)
     model.train()
@@ -146,16 +174,16 @@ def train(args, model, tokenizer):
     for epoch in range(args.epochs):
         
         print(f"EPOCH {epoch} started" + '=' * 30)
-        
+        total_batch = len(joke_loader)
         for idx,joke in enumerate(joke_loader):
-            print(str(idx) + ' ' + str(len(joke_loader)))
+            #print(str(idx) + ' ' + str(len(joke_loader)))
             inputs, labels = (joke[0], joke[1])
             #print(inputs)
             #print(labels)
             inputs = inputs.to(device)
             labels = labels.to(device)
             #torch.set_printoptions(threshold=50000)
-            #print(joke)
+            #print(joke)be
             #print(joke.shape)
             outputs = model(inputs, labels=labels)
             loss, logits = outputs[:2]
@@ -172,23 +200,28 @@ def train(args, model, tokenizer):
                 scheduler.step() 
                 optimizer.zero_grad()
                 model.zero_grad()
-
-            if batch_count == 100:
-                print(f"sum loss {sum_loss}")
-                batch_count = 0
+            if batch_count % 100 == 0:
+                print(f"batch {batch_count :<4} / {total_batch :<4} :\t sum loss {sum_loss}")
+                # batch_count = 0
                 sum_loss = 0.0
-        
+
+        evaluate(args, model, tokenizer,epoch)
+
         # Store the model after each epoch to compare the performance of them
         if(epoch == args.epochs - 1):
+            evaluate(args, model, tokenizer,epoch+1)
+
             model.config.save_pretrained(models_folder)
-            torch.save(model.state_dict(), os.path.join(models_folder, f"bettertrainbert_medium_joker_{args.maxseqlen}{epoch}{args.gradient_acums}.pt"))
+            torch.save(model.state_dict(), os.path.join(models_folder, f"newsave.pt"))
             model.save_pretrained(models_folder)
-            evaluate(args, model, tokenizer)
+            
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--traindataset", default=None, type=str, required=True) 
-    parser.add_argument("--evaldataset", default=None, type=str, required=True)
+    parser.add_argument("--devdataset", default=None, type=str, required=True)
+    parser.add_argument("--testdataset", default=None, type=str, required=True)
+
     parser.add_argument("--outputfile", default=None, type=str, required=True)
     parser.add_argument("--epochs", default=5, type=int, required=True)
     parser.add_argument("--gradient_acums", default=6, type=int, required=False)
@@ -197,6 +230,6 @@ if __name__ == "__main__":
     parser.add_argument('--pretrained', default=False, action='store_true', help='Bool type')
     args = parser.parse_args()
     if (args.pretrained) :
-        model_path = "/nethome/ilee300/Workspace/pal-model/trained_models/bettertrainbert_medium_joker_50066.pt"
+        model_path = "/nethome/ilee300/Workspace/pal-model/trained_models/bettertrainbert_medium_joker_50016.pt"
         model = HumorDetector(model_path).model
     train(args, model, tokenizer)

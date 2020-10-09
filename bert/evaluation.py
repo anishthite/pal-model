@@ -18,10 +18,10 @@ import numpy as np
 from bertrun import *
 
 device = 'cpu'
-if torch.cuda.is_available():
-    device = 'cuda'
+# if torch.cuda.is_available():
+#     device = 'cuda'
 
-model_path = "/nethome/ilee300/Workspace/bettertrainbert_medium_joker_10066.pt"
+model_path = "/nethome/ilee300/Workspace/pal-model/trained_models/bettertrainbert_medium_joker_50016.pt"
 model = HumorDetector(model_path).model
 
 tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
@@ -107,17 +107,16 @@ def evaluate(args, model, tokenizer, prefix=""):
                         false_positive +=1
                 else:
                     if labels.cpu()[i] == 1:
-                        false_positive +=1
+                        false_negative +=1
                     else:
                         true_negative+=1
 
-            # print(prediction)
-            # print(labels)
-            # print(true_positive, false_positive, true_negative, false_negative, sep="   ")
-            # print(acc)
+
             lm_loss = outputs[0]
             eval_loss += lm_loss.mean().item()
         nb_eval_steps += 1
+        if nb_eval_steps==100:
+            break
 
     eval_loss = eval_loss / nb_eval_steps
     acc = acc / len(eval_dataset)
@@ -125,10 +124,14 @@ def evaluate(args, model, tokenizer, prefix=""):
     precision = true_positive/(true_positive + false_positive)
     recall = true_positive/(true_positive + false_negative)
     f1_score =(2* precision * recall)/(precision+recall)
+    save_log = "maxSequence length : {} gradeint accumulation: {}, eval_loss: {}, accuracy: {}, precision : {}, recall : {}, f1 : {}\n\n".format(
+        args.maxseqlen, args.gradient_acums, eval_loss,acc,precision,recall,f1_score
+    )
     result = {"eval_loss": eval_loss, "acc": acc, "f1 score" : f1_score}
     print("evaluation done. Saving the output")
     with open(args.outputfile, "a") as writer:
-        writer.write(str(args.maxseqlen) + " " + str(args.gradient_acums) + str(result))
+        writer.write(save_log)
+        #writer.write(str(args.maxseqlen) + " " + str(args.gradient_acums) + str(result))
     return result
 
 
@@ -142,7 +145,7 @@ if __name__ == "__main__":
     parser.add_argument('--pretrained', default=False, action='store_true', help='Bool type')
     args = parser.parse_args()
     # if (args.pretrained) :
-    #     model_path = "/nethome/ilee300/Workspace/bettertrainbert_medium_joker_10066.pt"
+    #     model_path = "/nethome/ilee300/Workspace/bettertrainbert_medium_joker_50016.pt"
     #     model = HumorDetector(model_path).model
     # train(args, model, tokenizer)
     evaluate(args, model, tokenizer)

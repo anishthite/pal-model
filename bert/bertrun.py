@@ -12,7 +12,7 @@ class HumorDetector:
     def __init__(self, modelpath):
         
         
-        model_state_dict = torch.load(modelpath, map_location=torch.device('cpu'))
+        model_state_dict = torch.load(modelpath, map_location=torch.device(device))
 
         self.model = BertForSequenceClassification.from_pretrained(None, config= '/nethome/ilee300/Workspace/pal-model/trained_models/config.json', state_dict=model_state_dict)
         

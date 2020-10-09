@@ -1,1 +1,64 @@
-5006{'eval_loss': 0.07941785627202971, 'acc': 0.987463988164759}500 6{'eval_loss': 1.2269383097775017, 'acc': 0.8487113602740792, 'f1 score': 0}500 6{'eval_loss': 1.2269383097775017, 'acc': 0.8487113602740792, 'f1 score': 0.8866989328823838}
+epoch[0] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.14705180525675132, accuracy: 0.002452697967764541, precision : 1.0, recall : 0.9545454545454546, f1 : 0.9767441860465117
+
+epoch[0] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.06738319351392362, accuracy: 0.9837654753562252, precision : 0.9962752401489904, recall : 0.9769319492502884, f1 : 0.9865087838493642
+
+epoch[1] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.06749449779592298, accuracy: 0.9813127773884607, precision : 0.9950903377847604, recall : 0.9740484429065744, f1 : 0.9844569652224597
+
+epoch[2] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.060681082184883404, accuracy: 0.9861403098964416, precision : 0.9913015463917526, recall : 0.985838779956427, f1 : 0.9885626164621218
+
+epoch[3] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.06975572234631879, accuracy: 0.9870357393132446, precision : 0.9913776462261116, recall : 0.9872484941689094, f1 : 0.9893087616784922
+
+epoch[4] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.07555323270648653, accuracy: 0.9844662462041579, precision : 0.9951807228915662, recall : 0.9791746764065103, f1 : 0.9871128193533801
+
+epoch[5] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.07634998317335197, accuracy: 0.9854395390485089, precision : 0.9955107351984385, recall : 0.9804562347814944, f1 : 0.9879261363636362
+
+epoch[6] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.07821927600111435, accuracy: 0.9873471930234369, precision : 0.9939871985517553, recall : 0.9851339228501859, f1 : 0.9895407588581727
+
+epoch[0] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.0723608776234009, accuracy: 0.9859067196137974, precision : 0.9930780178548324, recall : 0.9836601307189542, f1 : 0.9883466391964975
+
+epoch[1] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.05940878067217273, accuracy: 0.9852448804796388, precision : 0.9926875040445221, recall : 0.9829552736127131, f1 : 0.9877974178177018
+
+epoch[2] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.07018137278312127, accuracy: 0.9860624464688935, precision : 0.9911738178069837, recall : 0.985838779956427, f1 : 0.9884991004883064
+
+epoch[3] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.08177617306945599, accuracy: 0.9849334267694464, precision : 0.9932585726323977, recall : 0.9818659489939767, f1 : 0.9875294041826443
+
+epoch[4] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.0803087872080806, accuracy: 0.9848944950556724, precision : 0.9935781006746238, recall : 0.9814814814814815, f1 : 0.9874927470827155
+
+epoch[5] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.07600432860813655, accuracy: 0.9860624464688935, precision : 0.9936544936544937, recall : 0.9833397411252083, f1 : 0.9884702093397746
+
+epoch[6] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.07694179033964278, accuracy: 0.9867242856030523, precision : 0.9927054418694726, recall : 0.9853902345251826, f1 : 0.9890343119915105
+
+Final test  ||   maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.07694179033964278, accuracy: 0.9867242856030523, precision : 0.9927054418694726, recall : 0.9853902345251826, f1 : 0.9890343119915105
+
+maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.723372897806588, accuracy: 0.001525, precision : 0.96875, recall : 0.8857142857142857, f1 : 0.9253731343283582
+
+****Evaluation using kaggle data*****
+maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.8599843616898994, accuracy: 0.87825, precision : 0.9194793734833444, recall : 0.830196195598048, f1 : 0.8725597948395876
+
+epoch[0] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.7843670231999297, accuracy: 0.87000625, precision : 0.9222001628269035, recall : 0.8079031006781952, f1 : 0.8612761870460411
+
+epoch[1] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.6156641146055699, accuracy: 0.87233125, precision : 0.9496334366261053, recall : 0.7860932455767161, f1 : 0.8601589616150829
+
+Final test  ||   maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.6180247784572191, accuracy: 0.8717, precision : 0.9491647638504987, recall : 0.7865750423264615, f1 : 0.8602548741967107
+
+epoch[0] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.05050113154310022, accuracy: 0.978325, precision : 0.9921622867680959, recall : 0.9644457723334329, f1 : 0.9781077191121885
+
+epoch[1] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.04167204098015996, accuracy: 0.984525, precision : 0.9910187194106665, recall : 0.9780400358530027, f1 : 0.9844866043457557
+
+Final test  ||   maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.04167204098015996, accuracy: 0.984525, precision : 0.9910187194106665, recall : 0.9780400358530027, f1 : 0.9844866043457557
+epoch[0] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.017574285886527756, accuracy: 0.994099713327974, precision : 0.9993835640565008, recall : 0.9938000245196771, f1 : 0.9965839736553238
+
+epoch[1] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.010586525459341516, accuracy: 0.9969664335876474, precision : 0.9991928266858516, recall : 0.9973028355255092, f1 : 0.9982469365215715
+
+epoch[2] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.0065997312177148255, accuracy: 0.9981798601525884, precision : 0.9993514574678796, recall : 0.9985463334325796, f1 : 0.9989487332235343
+
+epoch[3] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.0079376037676807, accuracy: 0.997178783236512, precision : 0.9997190172628769, recall : 0.9970226106450426, f1 : 0.9983689933356718
+
+epoch[4] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.005307001368872797, accuracy: 0.9986045594503178, precision : 0.9997545280802342, recall : 0.9986339037077254, f1 : 0.999193901691054
+
+epoch[5] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.005584583731157401, accuracy: 0.9984983846258855, precision : 0.9997369713123379, recall : 0.9985288193775504, f1 : 0.999132530120482
+
+epoch[6] ||      maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.0049459818729090796, accuracy: 0.9986045594503178, precision : 0.9998246383165278, recall : 0.9985638474876088, f1 : 0.999193845183225
+
+Final test  ||   maxSequence length : 500 gradeint accumulation: 6, eval_loss: 0.023490932174619523, accuracy: 0.9963155470754655, precision : 0.9949625791594704, recall : 0.9996625855586619, f1 : 0.9973070449627315
+
