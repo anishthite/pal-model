@@ -29,10 +29,10 @@ WARMUP_STEPS = 5000
 
 
 tokenizer = GPT2Tokenizer.from_pretrained('gpt2-medium')
-model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
+model = GPT2LMHeadModel.from_pretrained('microsoft/DialoGPT-medium')
 model = model.to(device)
 
-special_tokens_dict = {'sep_token': '<SEP>', 'eos_token': '<|endoftext|>'}
+special_tokens_dict = {'sep_token': '<SEP>','bos_token': '<BOS>','pad_token': '<PAD>', 'eos_token': '<|endoftext|>'}
 tokenizer.add_special_tokens(special_tokens_dict)
 model.resize_token_embeddings(len(tokenizer))
 assert tokenizer.sep_token == '<SEP>'
@@ -48,15 +48,23 @@ class JokesDataset(Dataset):
 
         with open(dataset) as csv_file:
             for line in csv_file:
-                #self.joke_list.append(line)
-                self.examples.append(tokenizer.encode(line)) 
+#                self.joke_list.append(line)
+                tok_line = tokenizer.encode(line.rstrip())
+                if len(tok_line) > block_size:
+                    tok_line = tok_line[:block_size]
+                while len(tok_line) < block_size:
+                    tok_line.append(tokenizer.encode('<PAD>')[0])
+                if (len(tok_line) > 1000):
+                    print("skipping")
+                    continue
+                self.examples.append(tok_line) 
         text = ''.join(self.joke_list)
 
-        tokenized_text = tokenizer.encode(text)
+        #tokenized_text = tokenizer.encode(text)
         
 
-       # for i in range(0, len(tokenized_text) - block_size + 1, block_size):  # Truncate in block of block_size
-          #  self.examples.append(tokenized_text[i : i + block_size])
+        #for i in range(0, len(tokenized_text) - block_size + 1, block_size):  # Truncate in block of block_size
+            #self.examples.append(tokenized_text[i : i + block_size])
         
         self.joke_list = []
         tokenized_text = ''
@@ -91,24 +99,41 @@ def bleu_evaluate(args, model, tokenizer, prefix=""):
     nb_eval_steps = 0
     model.eval()
 
+    bad_jokes = 0
     for idx,joke in enumerate(eval_dataloader):
         print(str(idx) + ' ' + str(len(eval_dataloader)))
         inputs, labels = (joke, joke)
         inputs = tokenizer.decode(inputs.tolist()[0])
-        inputs_list  = inputs.split('<SEP>')
-        inputs = inputs_list[0] + ' <SEP> '
+        inputs_list  = inputs.split('<BOS>')
+        if len(inputs_list) < 2:
+            bad_jokes +=1
+            continue
+        inputs = inputs_list[0] + ' <BOS> '
         labels = inputs_list[1]
         inputs = torch.tensor([tokenizer.encode(inputs)])
         inputs = inputs.to(device)
         with torch.no_grad():
-            output = model.generate(inputs, top_k=50)
+            output = model.generate(inputs, top_p=0.9, max_length=len(inputs[0]) + 10)
             output = tokenizer.decode(output.tolist()[0])
+            eosindex = labels.find('<|endoftext|>')
+            if eosindex != -1:
+                labels = labels[:eosindex]
+
+            bosindex = output.find('<BOS>')
+            if bosindex != -1:
+                output = output[bosindex+5:]
+            eosindex = output.find('<|endoftext|>')
+            if eosindex != -1:
+                output = output[:eosindex]
+            print(labels)
+            print(output)
             bleu += sentence_bleu([labels], output)
 
-    bleu = bleu / len(eval_dataset)
-
+    print(bad_jokes)
+    bleu = bleu / (len(eval_dataset)-bad_jokes)
+    print(bleu)
     result = {"bleu": bleu}
-
+    
     with open(args.outputfile, "a") as writer:
         writer.write(str(args.maxseqlen) + str(args.gradient_acums) + str(result))
 
@@ -139,6 +164,7 @@ def evaluate(args, model, tokenizer, prefix=""):
             outputs = model(inputs, labels=labels)
             lm_loss = outputs[0]
             eval_loss += lm_loss.mean().item()
+            #eval_loss += lm_loss
         nb_eval_steps += 1
 
     eval_loss = eval_loss / nb_eval_steps
@@ -196,7 +222,7 @@ def train(args, model, tokenizer):
                 sum_loss = 0.0
         
         # Store the model after each epoch to compare the performance of them
-        torch.save(model.state_dict(), os.path.join(models_folder, f"bettertraingpt2_medium_joker_{args.maxseqlen}{epoch}{args.gradient_acums}.pt"))
+        torch.save(model.state_dict(), os.path.join(models_folder, f"gpt2_tokens_tag_{args.maxseqlen}{epoch}{args.gradient_acums}.pt"))
         model.save_pretrained(models_folder)
         evaluate(args, model, tokenizer)
 

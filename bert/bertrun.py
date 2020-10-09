@@ -14,7 +14,7 @@ class HumorDetector:
         
         model_state_dict = torch.load(modelpath, map_location=torch.device(device))
 
-        self.model = BertForSequenceClassification.from_pretrained(None, config= '/nethome/ilee300/Workspace/pal-model/trained_models/config.json', state_dict=model_state_dict)
+        self.model = BertForSequenceClassification.from_pretrained(None, config= 'bert.json', state_dict=model_state_dict)
         
         #self.model.load_state_dict(torch.load(modelpath))
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
@@ -47,7 +47,7 @@ class HumorDetector:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--modelpath", default='/nethome/ilee300/Workspace/pal-model/trained_models/bettertrainbert_medium_joker_50066.pt', type=str, required=False)
+    parser.add_argument("--modelpath", default='/nethome/ilee300/Workspace/bettertrainbert_medium_joker_10066.pt', type=str, required=False)
     args = parser.parse_args()
     mymodel = HumorDetector(args.modelpath)
     mymodel.model.eval()
