@@ -2,6 +2,7 @@ import torch
 import argparse
 import numpy as np
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from profanity_filter import ProfanityFilter
 
 
 #device = 'cpu'
@@ -24,11 +25,13 @@ class HumorGenGPT:
 
         #self.model = self.model.to(device)
         self.model.eval()
+        self.pf = ProfanityFilter()
             
     def __call__(self, query, **kwargs):
         return self.predict(query, **kwargs)
 
     def predict(self, query, **kwargs):
+        
         #encode
         query = query + ' <BOS> '
         #print(query)
@@ -38,17 +41,19 @@ class HumorGenGPT:
         #print(inputs)
         #inputs = inputs.to(device)
         #predict
-        with torch.no_grad():
-            output = self.model.generate(inputs, **kwargs) #temp 0.8
-        output = self.tokenizer.decode(output.tolist()[0]) 
-        eos_index = output.find('<|endoftext|>')
-        if eos_index != -1:
-            output = output[:eos_index]
-        bos_index = output.find('<BOS>')
-        if bos_index != -1:
-            output = output[bos_index+5:]
-        return output
-
+        for i in range(10):
+            with torch.no_grad():
+                output = self.model.generate(inputs, **kwargs) #temp 0.8
+            output = self.tokenizer.decode(output.tolist()[0]) 
+            eos_index = output.find('<|endoftext|>')
+            if eos_index != -1:
+                output = output[:eos_index]
+            bos_index = output.find('<BOS>')
+            if bos_index != -1:
+                output = output[bos_index+5:]
+            if pf.is_clean(output)
+                return output
+        return "None Generated!"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
