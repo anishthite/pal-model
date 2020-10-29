@@ -36,5 +36,5 @@ if __name__ == '__main__':
     pipeline = HumorPipeline(args.modelpathgpt2, args.modelpathbert)
     while True:
         query = input("Enter Question: ")
-        answer = pipeline(query, top_k=50, do_sample=True)
+        answer = pipeline(query, do_sample=True)
         print(answer)

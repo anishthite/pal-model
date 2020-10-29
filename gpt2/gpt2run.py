@@ -41,7 +41,7 @@ class HumorGenGPT:
         #print(inputs)
         #inputs = inputs.to(device)
         #predict
-        for i in range(10):
+        for i in range(2):
             with torch.no_grad():
                 output = self.model.generate(inputs, **kwargs) #temp 0.8
             output = self.tokenizer.decode(output.tolist()[0]) 
@@ -51,7 +51,7 @@ class HumorGenGPT:
             bos_index = output.find('<BOS>')
             if bos_index != -1:
                 output = output[bos_index+5:]
-            if pf.is_clean(output)
+            if self.pf.is_clean(output) and output.find('<BOS>') == -1 and output.find('<SEP>') == -1:
                 return output
         return "None Generated!"
 
