@@ -31,7 +31,7 @@ class HumorGenGPT:
         # device2 = torch.device(device)
         bert_config = BertConfig('../models/bert-toxicity/bert_config.json')
         self.toxicity_model = BertForSequenceClassification(bert_config, num_labels=1)
-        self.toxicity_model.load_state_dict(torch.load("../models/bert-toxicity/bert_pytorch.bin"))
+        self.toxicity_model.load_state_dict(torch.load("../models/bert-toxicity/bert_pytorch.bin", , map_location=torch.device('cpu')))
         self.toxicity_model.to(torch.device(device))
         for param in self.toxicity_model.parameters():
             param.requires_grad = False
