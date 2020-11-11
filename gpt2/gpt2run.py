@@ -34,7 +34,8 @@ class HumorGenGPT:
         self.tokenizer = toxicity.tknzr()
         matrix = toxicity.embeddingmatrix(self.tokenizer)
         self.toxicity_model = toxicity.NeuralNet(matrix, 7)
-        self.toxicity_model.load_state_dict(torch.load('model epoch:3.pt'), map_location=device)
+        device = torch.device('cpu')
+        self.toxicity_model.load_state_dict(torch.load('model epoch:3.pt', map_location=device))
         self.toxicity_model.eval()
 
             
@@ -68,7 +69,7 @@ class HumorGenGPT:
             # if np.round(model.predict(sequence.pad_sequences(tokenizer.texts_to_sequences([['bitch']]), maxlen=maxlen))).flatten()[0]<.5:
                 # return output
             MAX_LEN = 220
-            if toxicity.sigmoid(self.toxicity_model(torch.tensor(sequence.pad_sequences(self.tokenizer.texts_to_sequences(np.array([toxicity.clean_special_chars(output)])), MAX_LEN), dtype=torch.long).numpy()))[0][0]>0.5:
+            if toxicity.sigmoid(self.toxicity_model(torch.tensor(sequence.pad_sequences(self.tokenizer.texts_to_sequences(np.array([toxicity.clean_special_chars(output)])), MAX_LEN), dtype=torch.long).detach().numpy()))[0][0]>0.5:
                 return output
         return "None Generated!"
 
