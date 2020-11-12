@@ -69,11 +69,11 @@ class HumorGenGPT:
             all_tokens = []
             longer = 0
             max_seq_length =220-2
-            tokens_a = tokenizer3.tokenize(output)
+            tokens_a = toxicity_tokenizer.tokenize(output)
             if len(tokens_a)>max_seq_length:
                     tokens_a = tokens_a[:max_seq_length]
                     longer += 1
-            one_token = tokenizer3.convert_tokens_to_ids(["[CLS]"]+tokens_a+["[SEP]"])+[0] * (max_seq_length - len(tokens_a))
+            one_token = toxicity_tokenizer.convert_tokens_to_ids(["[CLS]"]+tokens_a+["[SEP]"])+[0] * (max_seq_length - len(tokens_a))
             all_tokens.append(one_token)
 
             if torch.sigmoid(model2(torch.tensor(np.array(all_tokens)).to(device), attention_mask=(torch.tensor(np.array(all_tokens)).to(device) > 0), labels=None))[0][0].item()<=.5:
