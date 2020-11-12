@@ -31,7 +31,8 @@ pipeline = HumorPipeline('/home/tobias/humor/pal-model/gpt2/trained_models/gpt2_
 
 def log(metadata):
     with open('usagelog','a') as logfile:
-        logfile.write(str(metadata['joketuple']) + "," +  str(metadata['feedback']) + "\n")
+        logfile.write(str(metadata) + "\n")
+        #logfile.write(str(metadata['joketuple']) + "," +  str(metadata['feedback']) + "\n")
 
 with app.app_context():
     @app.route('/')
@@ -95,13 +96,24 @@ with app.app_context():
             metadata = flask.request.json
             if isinstance(metadata["history"], str):
                 metadata["history"] = (metadata["history"])
-            response = pipeline.classifer(metadata["history"])
-            score = response[0].numpy()[1]  
+            response = pipeline.classifier(metadata["history"])
+            score = response[0].numpy()[0]  
             if score > 0.7:
                 return 'I love it! It is ' + str(score * 10 )  + ' / 10 ! 🤗'
             elif score > 0.3:
                 return '¯\_(ツ)_/¯ I’ll rate it a ' + str(score * 10) +  ' /10. Nice try!'
             return 'Not sure about that one…  (.-.)'
+
+    @app.route('/classify_game', methods=['POST'])
+    @cross_origin()
+    def classify_game():
+        if flask.request.method == 'POST':
+            metadata = flask.request.json
+            if isinstance(metadata["history"], str):
+                metadata["history"] = (metadata["history"])
+            response = pipeline.classifier(metadata["history"])
+            score = response[0].numpy()[0]  
+            return str(score * 10)
 
 
 
