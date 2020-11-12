@@ -1,11 +1,11 @@
 import torch
 import argparse
 import numpy as np
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import GPT2Tokenizer, GPT2LMHeadModel, BertConfig, BertForSequenceClassification
 from profanity_filter import ProfanityFilter
+import pickle
 
-
-#device = 'cpu'
+device = 'cpu'
 if torch.cuda.is_available():
     device = 'cuda'
 
@@ -26,6 +26,18 @@ class HumorGenGPT:
         #self.model = self.model.to(device)
         self.model.eval()
         self.pf = ProfanityFilter()
+        with open('../models/bert-toxicity/bert_tokenizer.pickle', 'rb') as handle:
+            self.toxicity_tokenizer = pickle.load(handle)
+        # device2 = torch.device(device)
+        bert_config = BertConfig('../models/bert-toxicity/bert_config.json')
+        self.toxicity_model = BertForSequenceClassification(bert_config, num_labels=1)
+        self.toxicity_model.load_state_dict(torch.load("../models/bert-toxicity/bert_pytorch.bin", map_location=torch.device('cpu')))
+        self.toxicity_model.to(torch.device(device))
+        for param in self.toxicity_model.parameters():
+            param.requires_grad = False
+        self.toxicity_model.eval()
+
+        
             
     def __call__(self, query, **kwargs):
         return self.predict(query, **kwargs)
@@ -51,8 +63,23 @@ class HumorGenGPT:
             bos_index = output.find('<BOS>')
             if bos_index != -1:
                 output = output[bos_index+5:]
-            if self.pf.is_clean(output) and output.find('<BOS>') == -1 and output.find('<SEP>') == -1:
+            # if self.pf.is_clean(output) and output.find('<BOS>') == -1 and output.find('<SEP>') == -1:
+            #     return output
+            
+            all_tokens = []
+            longer = 0
+            max_seq_length =220-2
+            tokens_a = toxicity_tokenizer.tokenize(output)
+            if len(tokens_a)>max_seq_length:
+                    tokens_a = tokens_a[:max_seq_length]
+                    longer += 1
+            one_token = toxicity_tokenizer.convert_tokens_to_ids(["[CLS]"]+tokens_a+["[SEP]"])+[0] * (max_seq_length - len(tokens_a))
+            all_tokens.append(one_token)
+
+            if torch.sigmoid(model2(torch.tensor(np.array(all_tokens)).to(device), attention_mask=(torch.tensor(np.array(all_tokens)).to(device) > 0), labels=None))[0][0].item()<=.5:
                 return output
+
+
         return "None Generated!"
 
 if __name__ == "__main__":
