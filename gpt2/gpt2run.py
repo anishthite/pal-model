@@ -1,9 +1,10 @@
 import torch
 import argparse
 import numpy as np
-from transformers import GPT2Tokenizer, GPT2LMHeadModel, BertConfig, BertForSequenceClassification
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from profanity_filter import ProfanityFilter
 import pickle
+from pytorch_pretrained_bert import BertConfig, BertForSequenceClassification
 
 device = 'cpu'
 if torch.cuda.is_available():
@@ -26,12 +27,12 @@ class HumorGenGPT:
         #self.model = self.model.to(device)
         self.model.eval()
         self.pf = ProfanityFilter()
-        with open('../models/bert-toxicity/bert_tokenizer.pickle', 'rb') as handle:
+        with open('models/bert-toxicity/bert_tokenizer.pickle', 'rb') as handle:
             self.toxicity_tokenizer = pickle.load(handle)
         # device2 = torch.device(device)
-        bert_config = BertConfig('../models/bert-toxicity/bert_config.json')
+        bert_config = BertConfig('models/bert-toxicity/bert_config.json')
         self.toxicity_model = BertForSequenceClassification(bert_config, num_labels=1)
-        self.toxicity_model.load_state_dict(torch.load("../models/bert-toxicity/bert_pytorch.bin", map_location=torch.device('cpu')))
+        self.toxicity_model.load_state_dict(torch.load("models/bert-toxicity/bert_pytorch.bin", map_location=torch.device('cpu')))
         self.toxicity_model.to(torch.device(device))
         for param in self.toxicity_model.parameters():
             param.requires_grad = False
