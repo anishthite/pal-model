@@ -15,6 +15,7 @@ import gensim.downloader as api
 import scipy
 import numpy as np
 # DATASET = 'humor_challenge_data/bot_data/qa_total_word2vec.csv'
+import profanity_check as pc
 
 
 
@@ -41,7 +42,9 @@ class Retriever():
 
 
     def predict(self, query):
-        print(type(query))
+        #encode
+        if pc.predict([query])[0] ==1
+            return "Joke is not appropriate"
         n = 10
         l = self.word2vec_model.most_similar([query], topn = n)
         words = [i[0] for i in l]
