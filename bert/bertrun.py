@@ -47,14 +47,16 @@ class HumorDetector:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--modelpath", default='/nethome/ilee300/Workspace/bettertrainbert_medium_joker_10066.pt', type=str, required=False)
+    parser.add_argument("--modelpath", default='/home/tobias/humor/pal-model/newsave.pt', type=str, required=False)
     args = parser.parse_args()
     mymodel = HumorDetector(args.modelpath)
     mymodel.model.eval()
     while True:
         query = input("Enter joke or not joke: ")
-        answer, probs = mymodel(query)
-        if answer == 0:
+        response  = mymodel(query)
+        probs = response[1].numpy()
+        probs = probs * 10
+        if response[0] == 0:
             print("not joke :( probs " + str(probs))
         else:    
             print("Joke ;) probs " + str(probs))
