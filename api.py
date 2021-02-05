@@ -112,8 +112,8 @@ with app.app_context():
             if isinstance(metadata["history"], str):
                 metadata["history"] = (metadata["history"])
             response = pipeline.classifier(metadata["history"])
-            score = response[0].numpy()[0]  
-            return str(score * 10)
+            score = response[1].numpy()  
+            return str(round(score * 10,1))
 
 
 
