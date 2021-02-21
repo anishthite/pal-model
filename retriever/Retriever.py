@@ -15,6 +15,7 @@ import gensim.downloader as api
 import scipy
 import numpy as np
 # DATASET = 'humor_challenge_data/bot_data/qa_total_word2vec.csv'
+import profanity_check as pc
 
 
 
@@ -39,9 +40,23 @@ class Retriever():
         model_path='/nethome/ilee300/Workspace/pal-model/trained_models/bettertrainbert_medium_joker_50066.pt'
         self.bert_model = HumorDetector(model_path)
 
+        self.pf = ProfanityFilter()
+        with open('models/bert-toxicity/bert_tokenizer.pickle', 'rb') as handle:
+            self.toxicity_tokenizer = pickle.load(handle)
+        # device2 = torch.device(device)
+        bert_config = BertConfig('models/bert-toxicity/bert_config.json')
+        self.toxicity_model = BertForSequenceClassification(bert_config, num_labels=1)
+        self.toxicity_model.load_state_dict(torch.load("models/bert-toxicity/bert_pytorch.bin", map_location=torch.device('cpu')))
+        self.toxicity_model.to(torch.device(device))
+        for param in self.toxicity_model.parameters():
+            param.requires_grad = False
+        self.toxicity_model.eval()
+
 
     def predict(self, query):
-        print(type(query))
+        #encode
+        if pc.predict([query])[0] ==1
+            return "Joke is not appropriate"
         n = 10
         l = self.word2vec_model.most_similar([query], topn = n)
         words = [i[0] for i in l]
@@ -51,16 +66,32 @@ class Retriever():
             dataset_with_query = self.dataset[self.dataset['title'].apply(lambda x: any(j in str(x) for j in words)) | self.dataset['selftext'].apply(lambda x: any(j in str(x) for j in words))]
             # dataset_with_query = self.dataset[  self.dataset['title'].str.contains(query) | self.dataset['selftext'].str.contains(query)].values
         else:
-
             dataset_with_query = self.dataset[pd.Series([any(j in x for j in words) for x in self.tokenized_dataset])]
             # dataset_with_query = self.dataset[self.tokenized_dataset['0'].apply(lambda x : query.lower() in x)]
-        if not len(dataset_with_query)>0:
-            # dataset_with_query = dataset_with_query.fillna('')
-            dataset_with_query = (dataset['title'].str.strip('\n')+' '+dataset['selftext'].str.strip('\n')).values
-            jokeprobs = jokeProbs(dataset_with_query)
-            m = 10
-            k = min(m,len(jokeprobs)-1)
-            return np.random.choice(dataset_with_query[np.argpartition(jokeprobs,k)[:k]],1)
+        for i in range(2):
+            if not len(dataset_with_query)>0:
+                # dataset_with_query = dataset_with_query.fillna('')
+                dataset_with_query = (dataset['title'].str.strip('\n')+' '+dataset['selftext'].str.strip('\n')).values
+                jokeprobs = jokeProbs(dataset_with_query)
+                m = 10
+                k = min(m,len(jokeprobs)-1)
+                rand = np.random.choice(dataset_with_query[np.argpartition(jokeprobs,k)[:k]],1)
+
+
+
+
+                all_tokens = []
+                longer = 0
+                max_seq_length =220-2
+                tokens_a = self.toxicity_tokenizer.tokenize(rand)
+                if len(tokens_a)>max_seq_length:
+                        tokens_a = tokens_a[:max_seq_length]
+                        longer += 1
+                one_token = self.toxicity_tokenizer.convert_tokens_to_ids(["[CLS]"]+tokens_a+["[SEP]"])+[0] * (max_seq_length - len(tokens_a))
+                all_tokens.append(one_token)
+
+                if torch.sigmoid(self.toxicity_model(torch.tensor(np.array(all_tokens)).to(device), attention_mask=(torch.tensor(np.array(all_tokens)).to(device) > 0), labels=None))[0][0].item()<=.5:
+                    return output
 
             # sample = dataset_with_query.sample(1)
             # return str(sample['title'].values[0]).strip('\n') +' '+str(sample['selftext'].values[0]).strip('\n') 

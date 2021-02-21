@@ -4,7 +4,10 @@ import numpy as np
 from pytorch_pretrained_bert import BertConfig, BertForSequenceClassification
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from profanity_filter import ProfanityFilter
+import profanity_check as pc
+
 import pickle
+from pytorch_pretrained_bert import BertConfig, BertForSequenceClassification
 
 device = 'cpu'
 if torch.cuda.is_available():
@@ -14,7 +17,7 @@ class HumorGenGPT:
     def __init__(self, modelpath):
         
         model_state_dict = torch.load(modelpath, map_location=torch.device('cpu'))
-        self.model = GPT2LMHeadModel.from_pretrained(None, config= '/home/tobias/humor/pal-model/gpt2/trained_models/gpt2config.json', state_dict=model_state_dict)
+        self.model = GPT2LMHeadModel.from_pretrained(None, config= 'trained_models/gpt2config.json', state_dict=model_state_dict)
         self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2-medium')
         special_tokens_dict = {'sep_token': '<SEP>','bos_token': '<BOS>','pad_token': '<PAD>', 'eos_token': '<|endoftext|>'}
 
@@ -46,6 +49,8 @@ class HumorGenGPT:
     def predict(self, query, **kwargs):
         
         #encode
+        if pc.predict([query])[0] ==1
+            return "Joke is not appropriate"
         query = query + ' <BOS> '
         #print(query)
         tokens = self.tokenizer.encode(query)
@@ -66,7 +71,6 @@ class HumorGenGPT:
                 output = output[bos_index+5:]
             # if self.pf.is_clean(output) and output.find('<BOS>') == -1 and output.find('<SEP>') == -1:
             #     return output
-            
             all_tokens = []
             longer = 0
             max_seq_length =220-2
@@ -81,11 +85,11 @@ class HumorGenGPT:
                 return output
 
 
-        return "None Generated!"
+        return "Sorry I don't have a joke about that right now"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--modelpath", default='/home/tobias/humor/pal-model/gpt2/trained_models/gpt2_tokens_tag_10056.pt', type=str, required=False)
+    parser.add_argument("--modelpath", default='trained_models/gpt2_tokens_tag_10056.pt', type=str, required=False)
     args = parser.parse_args()
     print(args.modelpath)
     mymodel = HumorGenGPT(args.modelpath)
