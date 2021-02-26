@@ -40,6 +40,8 @@ class HumorGenGPT:
         for param in self.toxicity_model.parameters():
             param.requires_grad = False
         self.toxicity_model.eval()
+        self.word2vec_model = api.load("word2vec-google-news-300")
+
 
         
             
@@ -82,7 +84,36 @@ class HumorGenGPT:
             all_tokens.append(one_token)
 
             if torch.sigmoid(self.toxicity_model(torch.tensor(np.array(all_tokens)).to(device), attention_mask=(torch.tensor(np.array(all_tokens)).to(device) > 0), labels=None))[0][0].item()<=.5:
-                return output
+                joke = list(dict.fromkeys(output.split(' ')))
+                jokes = [[self.word2vec_model.similarity(joke[i],joke[j])   for j in range(i+1,len(joke))] for i in range(len(joke))]
+                f_list = []
+                for sublist in jokes:
+                    for item in sublist:
+                        f_list.append(item)
+                feat1 = 0
+                feat2 = 0
+                if not(f_list==[]):
+                    feat1 = min(f_list)
+                    feat2 = max(f_list)
+#                     print(min(f_list),max(f_list))
+                s = [  wn.synsets(word[0],get_wordnet_pos(word[1]))[0]  for word in nltk.pos_tag(nltk.word_tokenize(output) 
+                if (word[1].startswith('J') or word[1].startswith('V') or word[1].startswith('N') or word[1].startswith('R')) and (len(wn.synsets(word[0],get_wordnet_pos(word[1]))) !=0)]
+                s2 = [[ s[i].path_similarity(s[j])  for j in range(i+1,len(s))] for i in range(len(s))]
+                f_list = []
+                for sublist in s2:
+                    for item in sublist:
+                        if item !=None:
+                            f_list.append(item)
+                #     final_list2.append(flat_list)
+                feat4 = 0
+                feat5 = 0
+                if not(f_list==[]):
+                    feat4 = min(f_list)
+                    feat5 = max(f_list)
+                out = [len(wn.synsets(word[0],get_wordnet_pos(word[1]))) for word in nltk.pos_tag(nltk.word_tokenize(output)) 
+                if (word[1].startswith('J') or word[1].startswith('V') or word[1].startswith('N') or word[1].startswith('R')) and  (len(wn.synsets(word[0],get_wordnet_pos(word[1]))) !=0)]
+            feat3 = np.prod(out)
+            return output, feat1, feat2, feat3, feat4, feat5
 
 
         return "Sorry I don't have a joke about that right now"

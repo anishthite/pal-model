@@ -24,10 +24,10 @@ TOKENIZED_DATASET = 'humor_challenge_data/bot_data/qa_total_tokenized.txt'
 # 
 
 #retriever = Retriever(DATASET, TOKENIZED_DATASET) 
-generator = HumorGenGPT('/home/tobias/humor/pal-model/gpt2/trained_models/gpt2_tokens_tag_10086.pt')
-dialogenerator = HumorGenGPT('/home/tobias/humor/pal-model/gpt2/trained_models/dialogpt2_tokens_tag.pt')
+generator = HumorGenGPT('trained_models/gpt2_tokens_tag_10086.pt')
+# dialogenerator = HumorGenGPT('gpt2/trained_models/dialogpt2_tokens_tag.pt')
 
-pipeline = HumorPipeline('/home/tobias/humor/pal-model/gpt2/trained_models/gpt2_tokens_tag_10086.pt', '/home/tobias/humor/pal-model/newsave.pt', num_gens=2)
+pipeline = HumorPipeline('trained_models/gpt2_tokens_tag_10086.pt', 'trained_models/newsave.pt', num_gens=2)
 
 def log(metadata):
     with open('usagelog','a') as logfile:
@@ -65,7 +65,7 @@ with app.app_context():
             metadata = flask.request.json
             if isinstance(metadata["history"], str):
                 metadata["history"] = (metadata["history"])
-            response = generator.predict(metadata["history"],top_k=30, do_sample=True)
+            response = generator.predict(metadata["history"],top_k=30, do_sample=True)[0]
             return response
 
     @app.route('/generate_dialogpt2', methods=['POST'])
@@ -75,7 +75,8 @@ with app.app_context():
             metadata = flask.request.json
             if isinstance(metadata["history"], str):
                 metadata["history"] = (metadata["history"])
-            response = dialogenerator.predict(metadata["history"], top_k=30, do_sample=True)
+            # response = dialogenerator.predict(metadata["history"], top_k=30, do_sample=True)
+            response = "please refresh the page"
             return response
     
     @app.route('/generate_pipeline', methods=['POST'])
