@@ -1,12 +1,9 @@
 import torch
 import argparse
 import numpy as np
+from pytorch_pretrained_bert import BertConfig, BertForSequenceClassification
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
-# from profanity_filter import ProfanityFilter
-#from profanity_check import predict, predict_prob
-# from sklearn.externals import joblib
-import sklearn.externals
-import joblib
+from profanity_filter import ProfanityFilter
 import profanity_check as pc
 
 import pickle
@@ -33,12 +30,12 @@ class HumorGenGPT:
         #self.model = self.model.to(device)
         self.model.eval()
         self.pf = ProfanityFilter()
-        with open('models/bert-toxicity/bert_tokenizer.pickle', 'rb') as handle:
+        with open('/home/tobias/humor/pal-model/models/bert-toxicity/bert_tokenizer.pickle', 'rb') as handle:
             self.toxicity_tokenizer = pickle.load(handle)
         # device2 = torch.device(device)
-        bert_config = BertConfig('models/bert-toxicity/bert_config.json')
+        bert_config = BertConfig('/home/tobias/humor/pal-model/models/bert-toxicity/bert_config.json')
         self.toxicity_model = BertForSequenceClassification(bert_config, num_labels=1)
-        self.toxicity_model.load_state_dict(torch.load("models/bert-toxicity/bert_pytorch.bin", map_location=torch.device('cpu')))
+        self.toxicity_model.load_state_dict(torch.load("/home/tobias/humor/pal-model/models/bert-toxicity/bert_pytorch.bin", map_location=torch.device('cpu')))
         self.toxicity_model.to(torch.device(device))
         for param in self.toxicity_model.parameters():
             param.requires_grad = False
@@ -84,7 +81,7 @@ class HumorGenGPT:
             one_token = self.toxicity_tokenizer.convert_tokens_to_ids(["[CLS]"]+tokens_a+["[SEP]"])+[0] * (max_seq_length - len(tokens_a))
             all_tokens.append(one_token)
 
-            if torch.sigmoid(model2(torch.tensor(np.array(all_tokens)).to(device), attention_mask=(torch.tensor(np.array(all_tokens)).to(device) > 0), labels=None))[0][0].item()<=.5:
+            if torch.sigmoid(self.toxicity_model(torch.tensor(np.array(all_tokens)).to(device), attention_mask=(torch.tensor(np.array(all_tokens)).to(device) > 0), labels=None))[0][0].item()<=.5 and '<SEP>' not in output and '<BOS>' not in output:
                 return output
 
 
