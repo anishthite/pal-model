@@ -230,6 +230,6 @@ if __name__ == "__main__":
     parser.add_argument('--pretrained', default=False, action='store_true', help='Bool type')
     args = parser.parse_args()
     if (args.pretrained) :
-        model_path = "/nethome/ilee300/Workspace/pal-model/trained_models/bettertrainbert_medium_joker_50016.pt"
+        model_path = "/nethome/ilee300/Workspace/pal-model/trained_models/bettertrainbert_medium_joker_50066.pt"
         model = HumorDetector(model_path).model
     train(args, model, tokenizer)

@@ -4,6 +4,9 @@ import numpy as np
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 # from profanity_filter import ProfanityFilter
 #from profanity_check import predict, predict_prob
+# from sklearn.externals import joblib
+import sklearn.externals
+import joblib
 import profanity_check as pc
 
 import pickle
@@ -49,7 +52,7 @@ class HumorGenGPT:
     def predict(self, query, **kwargs):
         
         #encode
-        if pc.predict([query])[0] ==1
+        if pc.predict([query])[0] ==1:
             return "Joke is not appropriate"
         query = query + ' <BOS> '
         #print(query)
