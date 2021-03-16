@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import flask
 from flask_cors import CORS, cross_origin
 import os
@@ -24,10 +25,10 @@ TOKENIZED_DATASET = 'humor_challenge_data/bot_data/qa_total_tokenized.txt'
 # 
 
 #retriever = Retriever(DATASET, TOKENIZED_DATASET) 
-generator = HumorGenGPT('/home/tobias/humor/pal-model/gpt2/trained_models/gpt2_tokens_tag_10086.pt')
-dialogenerator = HumorGenGPT('/home/tobias/humor/pal-model/gpt2/trained_models/dialogpt2_tokens_tag.pt')
+generator = HumorGenGPT('/home/humor/humor/pal-model/gpt2/trained_models/gpt2_tokens_tag_10086.pt')
+dialogenerator = HumorGenGPT('/home/humor/humor/pal-model/gpt2/trained_models/dialogpt2_tokens_tag.pt')
 
-pipeline = HumorPipeline('/home/tobias/humor/pal-model/gpt2/trained_models/gpt2_tokens_tag_10086.pt', '/home/tobias/humor/pal-model/newsave.pt', num_gens=2)
+pipeline = HumorPipeline('/home/humor/humor/pal-model/gpt2/trained_models/gpt2_tokens_tag_10086.pt', '/home/humor/humor/pal-model/newsave.pt', num_gens=5)
 
 def log(metadata):
     with open('usagelog','a') as logfile:
@@ -123,6 +124,6 @@ if __name__ == "__main__":
     #app.run(host='192.168.1.10')
     #app.run(host='192.168.1.10', port=4444)
     app.run(port=5000)
-    #app.run(host='192.168.1.10', port=4444, ssl_context=('/home/tobias/fullchain1.pem', '/home/tobias/privkey1.pem'))
+    #app.run(host='192.168.1.10', port=4444, ssl_context=('/home/humor/fullchain1.pem', '/home/humor/privkey1.pem'))
 
 

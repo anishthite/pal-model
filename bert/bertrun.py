@@ -1,7 +1,7 @@
 import torch
 import argparse
 import numpy as np
-from transformers import BertTokenizer, BertForSequenceClassification
+from transformers import BertTokenizer, BertForSequenceClassification, BertConfig
 
 
 device = 'cpu'
@@ -12,9 +12,9 @@ class HumorDetector:
     def __init__(self, modelpath):
         
         
-        model_state_dict = torch.load(modelpath, map_location=torch.device(device))
+        model_state_dict = torch.load(modelpath)
 
-        self.model = BertForSequenceClassification.from_pretrained(None, config= 'bert.json', state_dict=model_state_dict)
+        self.model = BertForSequenceClassification.from_pretrained(None, config= BertConfig.from_json_file('/home/humor/humor/pal-model/bert/bert.json'), state_dict=model_state_dict)
         
         #self.model.load_state_dict(torch.load(modelpath))
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
@@ -47,7 +47,7 @@ class HumorDetector:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--modelpath", default='/home/tobias/humor/pal-model/newsave.pt', type=str, required=False)
+    parser.add_argument("--modelpath", default='/home/humor/humor/pal-model/newsave.pt', type=str, required=False)
     args = parser.parse_args()
     mymodel = HumorDetector(args.modelpath)
     mymodel.model.eval()

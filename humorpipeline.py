@@ -18,10 +18,10 @@ class HumorPipeline():
         answerlist = []
         start = time.perf_counter()
         answerlist = [self.generator(inputs, **kwargs) for _ in range(self.num_gens)]
-        print(f"{time.perf_counter() - start}")
+        #print(f"{time.perf_counter() - start}")
         start = time.perf_counter()
         answer = answerlist[np.argmax([self.classifier(answer)[1] for answer in answerlist])]
-        print(f"{time.perf_counter() - start}")
+        #ssh tprint(f"{time.perf_counter() - start}")
         return answer
 
 

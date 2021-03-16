@@ -2,10 +2,10 @@ import torch
 import argparse
 import numpy as np
 from pytorch_pretrained_bert import BertConfig, BertForSequenceClassification
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import GPT2Tokenizer, GPT2LMHeadModel, GPT2Config
 from profanity_filter import ProfanityFilter
 import profanity_check as pc
-
+from tqdm import tqdm
 import pickle
 from pytorch_pretrained_bert import BertConfig, BertForSequenceClassification
 
@@ -16,8 +16,9 @@ if torch.cuda.is_available():
 class HumorGenGPT:
     def __init__(self, modelpath):
         
-        model_state_dict = torch.load(modelpath, map_location=torch.device('cpu'))
-        self.model = GPT2LMHeadModel.from_pretrained(None, config= 'trained_models/gpt2config.json', state_dict=model_state_dict)
+        model_state_dict = torch.load(modelpath)
+
+        self.model = GPT2LMHeadModel.from_pretrained(None, config=GPT2Config.from_json_file('/home/humor/humor/pal-model/gpt2/trained_models/gpt2config.json'), state_dict=model_state_dict)
         self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2-medium')
         special_tokens_dict = {'sep_token': '<SEP>','bos_token': '<BOS>','pad_token': '<PAD>', 'eos_token': '<|endoftext|>'}
 
@@ -30,12 +31,12 @@ class HumorGenGPT:
         #self.model = self.model.to(device)
         self.model.eval()
         self.pf = ProfanityFilter()
-        with open('/home/tobias/humor/pal-model/models/bert-toxicity/bert_tokenizer.pickle', 'rb') as handle:
+        with open('/home/humor/humor/pal-model/models/bert-toxicity/bert_tokenizer.pickle', 'rb') as handle:
             self.toxicity_tokenizer = pickle.load(handle)
         # device2 = torch.device(device)
-        bert_config = BertConfig('/home/tobias/humor/pal-model/models/bert-toxicity/bert_config.json')
+        bert_config = BertConfig('/home/humor/humor/pal-model/models/bert-toxicity/bert_config.json')
         self.toxicity_model = BertForSequenceClassification(bert_config, num_labels=1)
-        self.toxicity_model.load_state_dict(torch.load("/home/tobias/humor/pal-model/models/bert-toxicity/bert_pytorch.bin", map_location=torch.device('cpu')))
+        self.toxicity_model.load_state_dict(torch.load("/home/humor/humor/pal-model/models/bert-toxicity/bert_pytorch.bin", map_location=torch.device('cpu')))
         self.toxicity_model.to(torch.device(device))
         for param in self.toxicity_model.parameters():
             param.requires_grad = False
@@ -90,12 +91,33 @@ class HumorGenGPT:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--modelpath", default='trained_models/gpt2_tokens_tag_10056.pt', type=str, required=False)
+    parser.add_argument("--keywords", default='../keywords.txt', type=str, required=False)
     args = parser.parse_args()
     print(args.modelpath)
     mymodel = HumorGenGPT(args.modelpath)
-    while True:
-        query = input("Enter Question: ")
-        answer = mymodel(query, do_sample=True)
-        print(answer)
-        answer = mymodel(query)
-        print(answer)
+#     while True:
+#         query = input("Enter Question: ")
+    f = open('../keywords.txt', 'r')
+    l = []
+    i = 0
+    num_lines = sum(1 for line in f)
+    with open('../keywords.txt') as f2:
+      for x in f2:
+        l.append(mymodel(x, do_sample=True))
+        l.append(mymodel(x, do_sample=True))
+        i+=1
+        print('here')
+        if i%50==0:
+          with open('outputjokes.txt', 'w') as filehandle:
+            filehandle.writelines("%s\n" % word for word in l)
+          l = []
+#             answer = mymodel(query, do_sample=True)
+#         print(answer)
+#         answer = mymodel(query)
+#         print(answer)
+    print(l)
+    with open('outputjokes.txt', 'w') as filehandle:
+        filehandle.writelines("%s\n" % word for word in l)
+        
+        
+        
