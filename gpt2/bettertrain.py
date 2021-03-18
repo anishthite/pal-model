@@ -27,18 +27,20 @@ TRAINPATH = '/home/anish/projects/humor/'
 LEARNING_RATE = 3e-5
 WARMUP_STEPS = 5000
 
-
 tokenizer = GPT2Tokenizer.from_pretrained('gpt2-medium')
-model = GPT2LMHeadModel.from_pretrained('microsoft/DialoGPT-medium')
-model = model.to(device)
+model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
 
+#tokenizer = GPT2Tokenizer.from_pretrained('microsoft/DialoGPT-medium')
+#model = GPT2LMHeadModel.from_pretrained('microsoft/DialoGPT-medium')
 special_tokens_dict = {'sep_token': '<SEP>','bos_token': '<BOS>','pad_token': '<PAD>', 'eos_token': '<|endoftext|>'}
 tokenizer.add_special_tokens(special_tokens_dict)
 model.resize_token_embeddings(len(tokenizer))
 assert tokenizer.sep_token == '<SEP>'
 assert tokenizer.eos_token == '<|endoftext|>'
 
+model = torch.nn.DataParallel(model)
 
+model = model.to(device)
 class JokesDataset(Dataset):
     def __init__(self, dataset = 'humor_challenge_jokes_gpt2_better_qa_train.txt', block_size=512):
         super().__init__()
@@ -48,7 +50,7 @@ class JokesDataset(Dataset):
 
         with open(dataset) as csv_file:
             for line in csv_file:
-#                self.joke_list.append(line)
+                self.joke_list.append(line)
                 tok_line = tokenizer.encode(line.rstrip())
                 if len(tok_line) > block_size:
                     tok_line = tok_line[:block_size]
@@ -58,13 +60,13 @@ class JokesDataset(Dataset):
                     print("skipping")
                     continue
                 self.examples.append(tok_line) 
-        text = ''.join(self.joke_list)
+#        text = ''.join(self.joke_list)
 
-        #tokenized_text = tokenizer.encode(text)
+#        tokenized_text = tokenizer.encode(text)
         
 
-        #for i in range(0, len(tokenized_text) - block_size + 1, block_size):  # Truncate in block of block_size
-            #self.examples.append(tokenized_text[i : i + block_size])
+#        for i in range(0, len(tokenized_text) - block_size + 1, block_size):  # Truncate in block of block_size
+#            self.examples.append(tokenized_text[i : i + block_size])
         
         self.joke_list = []
         tokenized_text = ''
@@ -76,7 +78,6 @@ class JokesDataset(Dataset):
     def __getitem__(self, item):
         return torch.tensor(self.examples[item])
 
-model = model.to(device)
 model.train()
 
 
@@ -222,7 +223,7 @@ def train(args, model, tokenizer):
                 sum_loss = 0.0
         
         # Store the model after each epoch to compare the performance of them
-        torch.save(model.state_dict(), os.path.join(models_folder, f"gpt2_tokens_tag_{args.maxseqlen}{epoch}{args.gradient_acums}.pt"))
+        torch.save(model.state_dict(), os.path.join(models_folder, f"gpt2m_dedup1_{args.maxseqlen}{epoch}{args.gradient_acums}.pt"))
         model.save_pretrained(models_folder)
         evaluate(args, model, tokenizer)
 
