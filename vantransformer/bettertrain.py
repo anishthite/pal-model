@@ -28,14 +28,14 @@ LEARNING_RATE = 3e-5
 WARMUP_STEPS = 5000
 
 
-tokenizer = GPT2TokenizerFast.from_pretrained('gpt2-medium')
-model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
+#tokenizer = GPT2TokenizerFast.from_pretrained('gpt2-medium')
+#model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
 
 #tokenizer = GPT2TokenizerFast.from_pretrained('gpt2-large')
 #model = GPT2LMHeadModel.from_pretrained('gpt2-large')
 
-#tokenizer = GPT2TokenizerFast.from_pretrained('gpt2-xl')
-#model = GPT2LMHeadModel.from_pretrained('gpt2-xl')
+tokenizer = GPT2TokenizerFast.from_pretrained('gpt2-xl')
+model = GPT2LMHeadModel.from_pretrained('gpt2-xl')
 
 #tokenizer = GPT2TokenizerFast.from_pretrained('microsoft/DialoGPT-medium')
 #model = GPT2LMHeadModel.from_pretrained('microsoft/DialoGPT-medium')

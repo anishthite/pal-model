@@ -1,7 +1,7 @@
 import argparse
 import torch
-from  bettertrain import bleu_evaluate, evaluate
-from transformers import GPT2TokenizerFast, GPT2LMHeadModel
+from  barttrain import bleu_evaluate, evaluate
+from transformers import BartTokenizerFast, BartForConditionalGeneration
 from transformers import BertTokenizer, BertForSequenceClassification
 MODELPATH = '/home/anish/projects/humor/trained_models/gpt2_tokens_tag_10056.pt'
 parser = argparse.ArgumentParser()
@@ -23,14 +23,14 @@ if torch.cuda.is_available():
 
 model_state_dict = torch.load(args.model)
 
-model = GPT2LMHeadModel.from_pretrained(None, config= args.config, state_dict=model_state_dict)
+model = BartForConditionalGeneration.from_pretrained(None, config= args.config, state_dict=model_state_dict)
 #model.load_state_dict(torch.load(MODELPATH))
 
 
 
 model.eval()
 model = model.to(device)
-tokenizer = GPT2TokenizerFast.from_pretrained('gpt2-medium')
+tokenizer = BartTokenizerFast.from_pretrained('facebook/bart-large')
 #special_tokens_dict = {'sep_token': '<SEP>','bos_token': '<BOS>','pad_token': '<PAD>', 'eos_token': '<|endoftext|>'}
 #tokenizer.add_special_tokens(special_tokens_dict)
 #model.resize_token_embeddings(len(tokenizer))

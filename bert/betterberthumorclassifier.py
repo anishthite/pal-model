@@ -1,5 +1,5 @@
 import argparse
-from transformers import BertTokenizer, BertForSequenceClassification
+from transformers import BertTokenizerFast, BertForSequenceClassification
 import torch
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from transformers import AdamW, get_linear_schedule_with_warmup
@@ -28,8 +28,8 @@ LEARNING_RATE = 3e-5
 WARMUP_STEPS = 5000
 
 
-tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
-model = BertForSequenceClassification.from_pretrained('bert-base-cased')
+tokenizer = BertTokenizerFast.from_pretrained('bert-large-cased')
+model = BertForSequenceClassification.from_pretrained('bert-large-cased')
 model = model.to(device)
 
 
@@ -168,14 +168,14 @@ def train(args, model, tokenizer):
     proc_seq_count = 0
     sum_loss = 0.0
     batch_count = 0
-    models_folder = "../trained_models"
+    models_folder = "./trained_models"
     if not os.path.exists(models_folder):
         os.mkdir(models_folder)
     for epoch in range(args.epochs):
         
         print(f"EPOCH {epoch} started" + '=' * 30)
         total_batch = len(joke_loader)
-        for idx,joke in enumerate(joke_loader):
+        for idx,joke in tqdm(enumerate(joke_loader)):
             #print(str(idx) + ' ' + str(len(joke_loader)))
             inputs, labels = (joke[0], joke[1])
             #print(inputs)
@@ -208,12 +208,12 @@ def train(args, model, tokenizer):
         evaluate(args, model, tokenizer,epoch)
 
         # Store the model after each epoch to compare the performance of them
-        if(epoch == args.epochs - 1):
-            evaluate(args, model, tokenizer,epoch+1)
+    #    if(epoch == args.epochs - 1):
+     #       evaluate(args, model, tokenizer,epoch+1)
 
-            model.config.save_pretrained(models_folder)
-            torch.save(model.state_dict(), os.path.join(models_folder, f"newsave.pt"))
-            model.save_pretrained(models_folder)
+        model.config.save_pretrained(models_folder)
+        torch.save(model.state_dict(), os.path.join(models_folder, f"newsave.pt"))
+        model.save_pretrained(models_folder)
             
 
 if __name__ == "__main__":
@@ -230,6 +230,6 @@ if __name__ == "__main__":
     parser.add_argument('--pretrained', default=False, action='store_true', help='Bool type')
     args = parser.parse_args()
     if (args.pretrained) :
-        model_path = "/nethome/ilee300/Workspace/pal-model/trained_models/bettertrainbert_medium_joker_50066.pt"
+        model_path = ""
         model = HumorDetector(model_path).model
     train(args, model, tokenizer)
